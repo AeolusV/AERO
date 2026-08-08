@@ -1,0 +1,36 @@
+{
+  "name": "codex-micro-bar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A calm, customizable floating controller for Codex Desktop on Windows.",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "assets:tray": "node scripts/generate-tray-icon.cjs",
+    "verify:tray": "electron scripts/verify-tray-icon.cjs",
+    "dev": "concurrently -k \"vite --config vite.config.js --configLoader native --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron . --dev\"",
+    "build": "npm run assets:tray && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build --config vite.config.js --configLoader native",
+    "test:wake-manager": "node scripts/wake-listener-manager.test.cjs",
+    "test:wake-live": "node scripts/wake-listener-live-smoke.cjs",
+    "test:wake-ui": "electron scripts/wake-settings-ui-smoke.cjs",
+    "test:wake-runtime": "node scripts/wake-runtime-installer.test.cjs",
+    "wake:enable-current-user": "electron scripts/enable-wake-current-user.cjs",
+    "preview": "vite preview --config vite.config.js --configLoader native --host 127.0.0.1",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^43.2.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0",
+    "wait-on": "^8.0.2"
+  }
+}

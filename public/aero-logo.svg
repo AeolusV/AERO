@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 36 36" fill="none">
+  <defs>
+    <linearGradient id="surface" x1="6" y1="4" x2="30" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#F2F5FF"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="11" y1="9" x2="27" y2="27" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8FA6FF"/>
+      <stop offset=".58" stop-color="#536DFE"/>
+      <stop offset="1" stop-color="#536DFE"/>
+    </linearGradient>
+  </defs>
+  <rect x="2.25" y="2.25" width="31.5" height="31.5" rx="10.5" fill="url(#surface)" stroke="#475262" stroke-opacity=".07"/>
+  <path d="M26.35 17.9A8.35 8.35 0 1 1 18 9.55A8.35 8.35 0 0 1 26.35 17.9V24.95" stroke="url(#ribbon)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
