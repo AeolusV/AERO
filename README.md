@@ -2,7 +2,7 @@
 
 作者 / Author：**Aeolus**。Copyright (c) 2026 Aeolus.
 
-本项目采用源码公开、作者授权模式，而非宽松开源许可。复制、分发或改写 AERO 原创内容须事先获得 Aeolus 的明确书面授权；法律及托管平台已有授权的行为除外。保留作者署名不等于获得许可。详见 [LICENSE](LICENSE) 和 [第三方内容说明](THIRD_PARTY_NOTICES.md)。公开发布前仍须处理从 Codex 提取的图标的再分发许可或替换问题。
+本项目采用源码公开、作者授权模式，而非宽松开源许可。复制、分发或改写 AERO 原创内容须事先获得 Aeolus 的明确书面授权；法律及托管平台已有授权的行为除外。保留作者署名不等于获得许可。详见 [LICENSE](LICENSE) 和 [第三方内容说明](THIRD_PARTY_NOTICES.md)。
 
 Windows 上的 Codex Desktop 悬浮控制条原型。它不修改 Codex 安装包，也不依赖隐藏的 Codex Micro 设置页，而是通过本机 Codex `app-server` 读取任务元数据，并结合本地 rollout 增量判断 Desktop 任务的实时状态。
 
@@ -27,6 +27,13 @@ Windows 上的 Codex Desktop 悬浮控制条原型。它不修改 Codex 安装�
 - app-server 异常退出后自动退避重连；rollout 状态约每 2 秒增量刷新，任务元数据约每 15 秒刷新
 
 ## 开发运行
+
+环境：Windows、Node.js 24 LTS、npm，以及已安装并登录的 Codex Desktop。首次获取源码：
+
+```powershell
+git clone https://github.com/AeolusV/AERO.git
+Set-Location AERO
+```
 
 ```powershell
 npm.cmd install
@@ -78,7 +85,7 @@ npm.cmd run test:wake-live
 
 ## 阶段收口 / Compatibility baseline · 2026-10-02
 
-- 当前主目录：`D:\Aeolus资料库\K 软件项目\Codex Micro\01-Aero桌面应用_Aero-Desktop-App`。旧 OneDrive 路径已不存在。
+- 当前主入口为本应用仓库根目录；使用自己的检出路径运行，不依赖作者机器上的旧工作区目录。
 - 已核对 Codex Desktop `26.928.3736.0`，内置后端 `codex-cli 0.159.2`；自动发现并实际连接成功，任务列表、任务内容读取与远程控制状态查询通过。
 - 当前协议保留 `thread/settings/update`、`config/value/write`、线程状态通知和任务列表字段。推理档位按默认模型的 `model/list` 声明显示；本机返回 Low / Medium / High / XHigh / Max / Ultra，不再把新版档位误显示为 Medium。不同线程使用不同模型时，档位列表目前仍以配置中的默认模型为准，服务器负责最终校验。
 - 针对性检查：`node scripts/desktop-compatibility.test.cjs`、`node scripts/bridge-actions.test.cjs`、`node scripts/thread-status.test.cjs`；生产构建 `npm.cmd run build`。构建直接使用已纳入 Git 的 `vite.config.ts`，不再依赖未跟踪的生成 JS。

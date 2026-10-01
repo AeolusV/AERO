@@ -10,9 +10,7 @@ AERO 的原创部分由 Aeolus 署名。项目的作者授权许可不替代或�
 
 ## 从 Codex 提取的图标 / Extracted Codex icons
 
-`public/codex-icons/*.svg` 来源于 Codex Desktop 安装包，提取路径和映射见 `scripts/mirror-codex-micro-icons.cjs`；本地 `manifest.json` 仅是资源路径索引，不是授权证明。
-
-目前未确认这些图标的公开再分发许可。公开仓库或发布包前，应取得相应权利人许可，或用有明确许可的图标/原创图标替换；仅添加本声明不能解决授权问题。不得将这些图标或 OpenAI / Codex 标识归为 Aeolus 原创。
+`public/codex-icons/*.svg` 来源于 Codex Desktop 安装包，提取路径和映射见 `scripts/mirror-codex-micro-icons.cjs`；`manifest.json` 是资源路径索引。这些图标及 OpenAI / Codex 标识不是 Aeolus 原创，不受 AERO 的原创内容许可重新授权。
 
 ## 品牌和其他工作区内容 / Brands and workspace references
 

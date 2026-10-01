@@ -12,3 +12,9 @@ wake/models/
 wake/__pycache__/
 *.pyc
 wake-listener.json
+.env
+.env.*
+!.env.example
+auth.json
+*.pem
+*.key
