@@ -1,3 +1,4 @@
+// AERO original portions: Copyright (c) 2026 Aeolus. See LICENSE and THIRD_PARTY_NOTICES.md.
 import { useId, type CSSProperties } from "react";
 
 export type BrandPalette = "air" | "mint" | "sunset" | "graphite";

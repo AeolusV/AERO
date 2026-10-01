@@ -2,6 +2,8 @@
   "name": "codex-micro-bar",
   "version": "0.1.0",
   "private": true,
+  "author": "Aeolus",
+  "license": "SEE LICENSE IN LICENSE",
   "description": "A calm, customizable floating controller for Codex Desktop on Windows.",
   "main": "electron/main.cjs",
   "type": "module",

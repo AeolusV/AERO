@@ -1,3 +1,4 @@
+// AERO original portions: Copyright (c) 2026 Aeolus. See LICENSE and THIRD_PARTY_NOTICES.md.
 const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, nativeImage, screen, shell, Tray } = require("electron");
 const { spawn } = require("node:child_process");
 const { existsSync, readFileSync, writeFileSync } = require("node:fs");

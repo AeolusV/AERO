@@ -1,3 +1,4 @@
+# AERO original portions: Copyright (c) 2026 Aeolus. See LICENSE and THIRD_PARTY_NOTICES.md.
 """Offline wake-word sidecar for Aero on Windows.
 
 Vosk and sounddevice stay entirely local.  When the configured phrase is

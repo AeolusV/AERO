@@ -1,5 +1,9 @@
 # Aero 桌面应用 / Aero Desktop App
 
+作者 / Author：**Aeolus**。Copyright (c) 2026 Aeolus.
+
+本项目采用源码公开、作者授权模式，而非宽松开源许可。复制、分发或改写 AERO 原创内容须事先获得 Aeolus 的明确书面授权；法律及托管平台已有授权的行为除外。保留作者署名不等于获得许可。详见 [LICENSE](LICENSE) 和 [第三方内容说明](THIRD_PARTY_NOTICES.md)。公开发布前仍须处理从 Codex 提取的图标的再分发许可或替换问题。
+
 Windows 上的 Codex Desktop 悬浮控制条原型。它不修改 Codex 安装包，也不依赖隐藏的 Codex Micro 设置页，而是通过本机 Codex `app-server` 读取任务元数据，并结合本地 rollout 增量判断 Desktop 任务的实时状态。
 
 ## 当前能力

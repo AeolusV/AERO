@@ -1,3 +1,4 @@
+// AERO original portions: Copyright (c) 2026 Aeolus. See LICENSE and THIRD_PARTY_NOTICES.md.
 const { EventEmitter } = require("node:events");
 const { existsSync } = require("node:fs");
 const { open, readFile, readdir, stat } = require("node:fs/promises");
