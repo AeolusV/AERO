@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { moveControlBy, reorderControls } from "../src/control-order";
+import { moveControlBy, reorderControls } from "../src/control-order.ts";
 import type { ControlPreference } from "../src/types";
 
 const controls: ControlPreference[] = [

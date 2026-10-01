@@ -1,0 +1,17 @@
+const assert = require("node:assert/strict");
+const { join } = require("node:path");
+const { readFileSync } = require("node:fs");
+const { resolveStartupTarget } = require("../electron/startup.cjs");
+const root = join(__dirname, "..");
+assert.throws(() => resolveStartupTarget({ root, exists: () => false }), /npm.cmd run build/);
+assert.deepEqual(resolveStartupTarget({ root, exists: () => true }), { file: join(root, "dist", "index.html") });
+const noFileCheck = () => { throw new Error("Development must not require dist"); };
+assert.deepEqual(resolveStartupTarget({ root, dev: true, exists: noFileCheck }), { url: "http://127.0.0.1:5173" });
+assert.deepEqual(resolveStartupTarget({ root, dev: true, devUrl: "http://127.0.0.1:5180", exists: noFileCheck }), { url: "http://127.0.0.1:5180" });
+const main = readFileSync(join(root, "electron", "main.cjs"), "utf8");
+assert.match(main, /function showFromTray\(\) \{\s*if \(!app.isReady\(\) \|\| !startupTarget \|\| isQuitting\) return;/);
+assert.match(main, /let startupTarget;/);
+const ready = main.slice(main.indexOf("if (hasSingleInstanceLock) app.whenReady()"));
+assert.ok(ready.indexOf("startupTarget = resolveStartupTarget(") < ready.indexOf("bridge = new CodexBridge("));
+assert.match(main, /loading.catch\([\s\S]*dialog.showErrorBox\("AERO 无法加载界面"[\s\S]*app.quit\(\)/);
+console.log("startup: 4 behavior checks and 4 wiring checks passed");

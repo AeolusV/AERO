@@ -4,6 +4,8 @@
 
 A calm, customizable Windows companion for Codex Desktop. **By Aeolus.**
 
+[开始使用](#开始使用) · [使用指南](docs/USAGE.md) · [开发指南](docs/DEVELOPMENT.md) · [反馈问题](https://github.com/AeolusV/AERO/issues) · [授权说明](LICENSE)
+
 ![AERO 品牌宣传：让任务留在视野里](docs/images/aero-promo-hero.png)
 
 > 宣传视觉为 AI 辅助生成，以当前产品界面为参考；具体控件和操作以本文的真实界面截图为准。
@@ -93,6 +95,8 @@ npm.cmd run dev
 ```
 
 启动后，AERO 自动发现本机 Codex 后端。按需进入设置，选择控件、外观和语音选项。语音唤醒不是使用任务状态栏的前提。
+
+更多操作和常见问题见 [使用指南](docs/USAGE.md)。修改代码前，请阅读 [开发指南](docs/DEVELOPMENT.md)；运行 `npm.cmd run verify` 可统一执行离线回归测试、类型检查和构建，不会启动麦克风监听或真实 Codex 会话。
 
 ## 兼容性与边界
 

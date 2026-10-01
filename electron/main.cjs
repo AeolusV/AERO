@@ -6,6 +6,7 @@ const { join } = require("node:path");
 const { CodexBridge } = require("./codex-bridge.cjs");
 const { WakeListenerManager } = require("./wake-listener-manager.cjs");
 const { WakeRuntimeInstaller } = require("./wake-runtime-installer.cjs");
+const { resolveStartupTarget } = require("./startup.cjs");
 const {
   advanceBoundsSpring,
   boundsAreNear,
@@ -26,6 +27,7 @@ const EDGE_BURST_LEAVE_DELAY = 620;
 const BAR_MORPH_DURATION = 420;
 
 let window;
+let startupTarget;
 let bridge;
 let wakeManager;
 let wakeRuntimeInstaller;
@@ -556,6 +558,7 @@ function setCompactMode(nextCompact, { edge = null, initialVelocity = {} } = {})
 }
 
 function showFromTray() {
+  if (!app.isReady() || !startupTarget || isQuitting) return;
   hiddenToTray = false;
   if (!window || window.isDestroyed()) {
     createWindow();
@@ -678,13 +681,13 @@ function createWindow() {
   });
   window.setAlwaysOnTop(true, "floating");
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    window.loadURL(process.env.VITE_DEV_SERVER_URL);
-  } else if (process.argv.includes("--dev")) {
-    window.loadURL("http://127.0.0.1:5173");
-  } else {
-    window.loadFile(join(__dirname, "..", "dist", "index.html"));
-  }
+  const loading = startupTarget.url
+    ? window.loadURL(startupTarget.url)
+    : window.loadFile(startupTarget.file);
+  loading.catch((error) => {
+    dialog.showErrorBox("AERO 无法加载界面", `请确认构建文件或本地开发服务可用。\n${error.message}`);
+    app.quit();
+  });
 
   window.once("ready-to-show", () => {
     window.showInactive();
@@ -715,6 +718,12 @@ if (!hasSingleInstanceLock) {
 }
 
 if (hasSingleInstanceLock) app.whenReady().then(() => {
+  // Validate before creating background services: a failed launch must not leave a listener running.
+  startupTarget = resolveStartupTarget({
+    root: join(__dirname, ".."),
+    dev: process.argv.includes("--dev"),
+    devUrl: process.env.VITE_DEV_SERVER_URL || "",
+  });
   bridge = new CodexBridge({
     openExternal: (url) => shell.openExternal(url),
     openPath: (path) => shell.openPath(path),
@@ -745,6 +754,9 @@ if (hasSingleInstanceLock) app.whenReady().then(() => {
   createWindow();
   bridge.connect().catch(() => undefined);
   wakeManager.initialize().catch(() => undefined);
+}).catch((error) => {
+  dialog.showErrorBox("AERO 启动失败", error.message);
+  app.quit();
 });
 
 ipcMain.handle("codex-bar:get-state", () => bridge.snapshot());
