@@ -1,5 +1,7 @@
 # 使用 AERO
 
+**简体中文** · [English](USAGE.en.md)
+
 [返回产品介绍](../README.md) · [开发指南](DEVELOPMENT.md)
 
 ## 安装与启动

@@ -1,5 +1,7 @@
 # 开发 AERO
 
+**简体中文** · [English](DEVELOPMENT.en.md)
+
 [返回产品介绍](../README.md) · [使用指南](USAGE.md)
 
 本项目是源码公开、作者授权模式。开发、改写和分发前请确认 [LICENSE](../LICENSE) 中适用的授权范围；第三方内容见 [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md)。

@@ -1,5 +1,7 @@
 # AERO
 
+**简体中文** · [English](README.en.md)
+
 ### 让任务留在视野里，让专注回到你手上。
 
 A calm, customizable Windows companion for Codex Desktop. **By Aeolus.**
@@ -15,6 +17,8 @@ AERO 把 Codex 的任务状态和常用操作放在一条轻盈的桌面悬浮�
 ![AERO 完整控制栏：六个状态灯、推理档位与常用操作](docs/images/aero-full.png)
 
 > 展示图由当前界面组件渲染，使用虚构任务和演示状态，不包含真实对话或工作区信息。
+
+> 本页和使用、开发指南提供中英文切换；应用界面目前仍为中文。
 
 ## 少一点切换，多一点专注
 

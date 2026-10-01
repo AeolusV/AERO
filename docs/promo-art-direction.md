@@ -1,5 +1,7 @@
 # AERO 宣传视觉
 
+首页入口：[简体中文](../README.md) · [English](../README.en.md)
+
 生成方式：内置 image_gen。宣传图不是实机截图，不替代产品功能说明。图片文案与构图方向如下，供后续品牌素材延展。
 
 统一规范：克制的编辑排版，精致来自比例、对齐、层级和细节，而不是装饰数量。近白底色与炭黑标题、灰色副标题；缩小左上 Logo 与 AERO 字标，让控件成为主角。统一无衬线字体风格和标题层级，去掉贯穿底部的装饰线。只在控件和配置步骤层使用极浅投影、细微边缘高光和近白材质变化，背景不添加玻璃舞台、光晕或地面反射。状态色保持一致，宣传图不是产品状态的实机证明。生成图片是栅格视觉，不包含可核验的字体文件。Logo 沿用 `public/aero-logo.svg` 的圆环与右侧下垂笔画，不重新设计。宣传图风格转换不代表应用外观变化。
@@ -25,3 +27,17 @@
 ## 本地语音唤醒 · aero-promo-voice.png
 
 提示词：语音配置海报匹配精修主视觉的字体风格、小 Logo、近白背景、边距和署名。标题“一句唤醒，回到对话。”，副标题“Hey Codex · 本地离线监听”。四步位于一个连续的近白圆角分组层，极浅投影、低对比细分隔线；图标统一光学大小、圆角线宽和基线。保留“01 绑定热键 / Ctrl+Shift+V”“02 配置环境 / 语音设置 → 一键配置”“03 选择麦克风 / 选择实际输入设备”“04 开启监听 / 检查配置 → 监听开关”。下方注明“触发后释放麦克风；Voice 结束后手动重新监听。”。不做四块厚重悬浮玻璃卡，不添加假想界面或无限语音承诺。
+
+## 英文宣传版本
+
+生成方式仍为内置 image_gen，以对应中文宣传图为编辑参考；只做文案本地化，沿用 AERO 标志、署名、版式、近白背景和克制的控件材质。中文素材保留，英文版本用于 `README.en.md`。宣传图的英文不代表应用界面已经支持英文。
+
+统一编辑提示词：English localization of this exact AERO poster. Preserve the existing blue AERO logo, By Aeolus footer, landscape composition, near-white palette, restrained satin surfaces and delicate shadows. Replace marketing copy only. Use consistent elegant sans-serif typography, charcoal headlines and gray subtitles. Preserve control counts and status meanings; no added decorations or UI redesign.
+
+| 文件 | 标题 | 副标题 |
+| --- | --- | --- |
+| `aero-promo-hero-en.png` | Keep your tasks in sight. | Lightweight controls. Within reach. |
+| `aero-promo-mini-en.png` | Less switching. More focus. | Six task lights. Quietly in view. |
+| `aero-promo-voice-en.png` | Say hello. Start talking. | Hey Codex · Local wake-word detection |
+
+语音图四步文案：`01 Bind hotkey / Ctrl+Shift+V`、`02 Set up runtime / Voice → One-click setup`、`03 Choose microphone / Select your input device`、`04 Enable listening / Check configuration → Listen`。注释：`Mic released after wake. Restart listening after Voice ends.` 长文案可合理换行，保持统一层级和可读性，不省略麦克风交接与手动重新监听的边界。
