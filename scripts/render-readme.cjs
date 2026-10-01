@@ -36,7 +36,7 @@ app.whenReady().then(async () => {
   const window = new BrowserWindow({ width: 1240, height: 160, show: false, frame: false, transparent: true,
     webPreferences: { preload: join(root, "electron", "preload.cjs"), contextIsolation: true, nodeIntegration: false, sandbox: true, offscreen: true } });
   const errors = [];
-  window.webContents.on("console-message", (_event, details) => { if (details.level >= 3) errors.push(details.message); });
+  window.webContents.on("console-message", (details) => { if (details.level === "error") errors.push(details.message); });
   const render = async (file, width, height, compact) => {
     mode = { ...mode, compact };
     window.setSize(width, height);
