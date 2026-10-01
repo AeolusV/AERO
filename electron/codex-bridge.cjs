@@ -11,7 +11,7 @@ const STALE_PENDING_CALL_WINDOW_MS = 6 * 60 * 60 * 1000;
 const LOCAL_DISCOVERY_CACHE_MS = 30000;
 const LOCAL_REFRESH_INTERVAL_MS = 2000;
 const SERVER_REFRESH_INTERVAL_MS = 15000;
-const SUPPORTED_REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh"]);
+const SUPPORTED_REASONING_EFFORTS = new Set(["none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"]);
 const localDiscoveryCache = { root: "", expiresAt: 0, info: [] };
 const localThreadCache = new Map();
 const localTitlesCache = { root: "", expiresAt: 0, titles: new Map() };
@@ -311,7 +311,7 @@ async function localThreadToMarkdown(thread) {
 function resolveCodexBinary() {
   const candidates = [process.env.CODEX_BIN].filter(Boolean);
   if (process.platform === "win32") {
-    if (process.env.APPDATA) candidates.push(join(process.env.APPDATA, "npm", "codex.cmd"));
+    // Prefer the installed Desktop backend, not a separately updated CLI.
     try {
       const commandCandidate = execFileSync("where.exe", ["codex.cmd"], { encoding: "utf8", windowsHide: true, timeout: 5000, stdio: ["ignore", "pipe", "ignore"] })
         .split(/\r?\n/)
@@ -328,10 +328,11 @@ function resolveCodexBinary() {
       ["-NoProfile", "-Command", "Get-AppxPackage -Name OpenAI.Codex | Sort-Object Version -Descending | Select-Object -First 1 -ExpandProperty InstallLocation"],
       { encoding: "utf8", windowsHide: true, timeout: 10000, stdio: ["ignore", "pipe", "ignore"] },
     ).trim();
-    if (installLocation) candidates.push(join(installLocation, "app", "resources", "codex.exe"));
+    if (installLocation) candidates.splice(process.env.CODEX_BIN ? 1 : 0, 0, join(installLocation, "app", "resources", "codex.exe"));
   } catch {
     // Fall through to PATH resolution.
   }
+  if (process.env.APPDATA) candidates.push(join(process.env.APPDATA, "npm", "codex.cmd"));
   try {
     const pathCandidate = execFileSync("where.exe", ["codex.exe"], { encoding: "utf8", windowsHide: true, timeout: 5000, stdio: ["ignore", "pipe", "ignore"] })
       .split(/\r?\n/)
@@ -393,6 +394,7 @@ class CodexBridge extends EventEmitter {
       activeThreadId: null,
       activeTurnId: null,
       reasoningEffort: this.defaultReasoningEffort,
+      reasoningEfforts: ["low", "medium", "high", "xhigh"],
       pendingApproval: null,
       remoteControl: initialRemoteControlState(),
     };
@@ -682,13 +684,19 @@ class CodexBridge extends EventEmitter {
 
   async refreshReasoningEffort() {
     const result = await this.request("config/read", { includeLayers: false });
+    const models = await this.request("model/list", {}).catch(() => null);
+    const model = models?.data?.find((item) => item.model === result?.config?.model)
+      || models?.data?.find((item) => item.isDefault);
+    const advertised = (model?.supportedReasoningEfforts || [])
+      .map((option) => supportedReasoningEffort(option.reasoningEffort))
+      .filter(Boolean);
     const effort = supportedReasoningEffort(
       result?.config?.model_reasoning_effort,
       this.defaultReasoningEffort,
     );
     this.defaultReasoningEffort = effort;
     const activeEffort = this.threadEfforts.get(this.state.activeThreadId) || effort;
-    return this.publish({ reasoningEffort: activeEffort });
+    return this.publish({ reasoningEffort: activeEffort, reasoningEfforts: advertised.length ? advertised : this.state.reasoningEfforts });
   }
 
   async refreshRemoteControl() {

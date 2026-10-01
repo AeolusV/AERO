@@ -249,7 +249,7 @@ export function WakeSettings() {
             </span>
           </label>
           <div className="wake-hotkey-row">
-            <span><strong>Codex Voice 热键</strong><small>AERO 不会修改 Codex Desktop 的设置</small></span>
+            <span><strong>Codex Voice 热键</strong><small>请在 Codex 快捷键设置中绑定此组合。新版 Windows 无默认绑定；AERO 只检查，不修改。</small></span>
             <kbd>{draft.hotkey}</kbd>
           </div>
         </article>

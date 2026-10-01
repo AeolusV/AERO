@@ -8,14 +8,14 @@
   "scripts": {
     "assets:tray": "node scripts/generate-tray-icon.cjs",
     "verify:tray": "electron scripts/verify-tray-icon.cjs",
-    "dev": "concurrently -k \"vite --config vite.config.js --configLoader native --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron . --dev\"",
-    "build": "npm run assets:tray && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build --config vite.config.js --configLoader native",
+    "dev": "concurrently -k \"vite --config vite.config.ts --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron . --dev\"",
+    "build": "npm run assets:tray && tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build --config vite.config.ts",
     "test:wake-manager": "node scripts/wake-listener-manager.test.cjs",
     "test:wake-live": "node scripts/wake-listener-live-smoke.cjs",
     "test:wake-ui": "electron scripts/wake-settings-ui-smoke.cjs",
     "test:wake-runtime": "node scripts/wake-runtime-installer.test.cjs",
     "wake:enable-current-user": "electron scripts/enable-wake-current-user.cjs",
-    "preview": "vite preview --config vite.config.js --configLoader native --host 127.0.0.1",
+    "preview": "vite preview --config vite.config.ts --host 127.0.0.1",
     "start": "electron ."
   },
   "dependencies": {

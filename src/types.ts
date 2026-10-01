@@ -1,6 +1,6 @@
 export type ConnectionState = "disconnected" | "connecting" | "connected" | "error";
 export type ThreadTone = "idle" | "active" | "waiting" | "error" | "complete";
-export type ReasoningEffort = "low" | "medium" | "high" | "xhigh";
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
 export type ScreenEdge = "left" | "right" | "top" | "bottom";
 
 export type CodexThread = {
@@ -65,6 +65,7 @@ export type BridgeState = {
   activeThreadId: string | null;
   activeTurnId: string | null;
   reasoningEffort: ReasoningEffort;
+  reasoningEfforts?: ReasoningEffort[];
   pendingApproval: PendingApproval | null;
   remoteControl: RemoteControlState;
 };

@@ -4,7 +4,7 @@ Windows 上的 Codex Desktop 悬浮控制条原型。它不修改 Codex 安装�
 
 ## 当前能力
 
-- 自动发现本机 Codex 后端；Windows Store 二进制受 MSIX 权限保护时回退到全局 `codex.cmd`
+- 自动发现本机 Codex 后端，优先使用 Desktop 安装包自带版本，避免全局 CLI 与 Desktop 的协议版本错配；可用 `CODEX_BIN` 显式指定，未安装 Desktop 时才选择 CLI
 - 连接本机 `codex.exe app-server`
 - 读取最近任务并映射六个可点击、可切换的状态灯；点击通过 `codex://threads/<id>` 打开对应 Desktop 任务
 - 区分空闲、运行、等待批准/用户输入、完成和错误
@@ -53,6 +53,7 @@ Aero 可以在后台使用 Vosk 与 `sounddevice` 离线监听 `Hey Codex`。识
 - Python 环境和英文 Vosk 模型使用外部路径；模型不进入仓库。新用户可在语音设置中点击“＋ 一键配置”，将隔离运行时安装到 AERO 用户数据目录。
 - 一键配置使用固定版本的 Astral `uv` GitHub Release，引导隔离的 CPython 3.12.10，并从 Vosk 官方来源下载英文小模型；下载物均执行 SHA-256 校验。
 - 设置页提供启用、唤醒词、麦克风、运行状态、配置检查和日志入口。
+- 启动监听或点击语音前，检查本机 `keybindings.json` 是否显式绑定 Voice 到 `Ctrl+Shift+V`；缺失或禁用时报告具体原因，不修改 Codex 配置。热键发送确认不等于语音会话启动确认。
 - 默认日志只记录状态与错误，不记录原始音频或未匹配的日常转写。
 - Electron 与 Python 双层防止 AERO 重复启动监听器。
 - Codex Voice 结束后的自动重新监听尚未实现；在没有可靠会话结束事件前不会使用固定延时或抢麦探测。
@@ -70,3 +71,13 @@ npm.cmd run build
 ```powershell
 npm.cmd run test:wake-live
 ```
+
+## 阶段收口 / Compatibility baseline · 2026-10-02
+
+- 当前主目录：`D:\Aeolus资料库\K 软件项目\Codex Micro\01-Aero桌面应用_Aero-Desktop-App`。旧 OneDrive 路径已不存在。
+- 已核对 Codex Desktop `26.928.3736.0`，内置后端 `codex-cli 0.159.2`；自动发现并实际连接成功，任务列表、任务内容读取与远程控制状态查询通过。
+- 当前协议保留 `thread/settings/update`、`config/value/write`、线程状态通知和任务列表字段。推理档位按默认模型的 `model/list` 声明显示；本机返回 Low / Medium / High / XHigh / Max / Ultra，不再把新版档位误显示为 Medium。不同线程使用不同模型时，档位列表目前仍以配置中的默认模型为准，服务器负责最终校验。
+- 针对性检查：`node scripts/desktop-compatibility.test.cjs`、`node scripts/bridge-actions.test.cjs`、`node scripts/thread-status.test.cjs`；生产构建 `npm.cmd run build`。构建直接使用已纳入 Git 的 `vite.config.ts`，不再依赖未跟踪的生成 JS。
+- 本机 Python 和英文模型路径仍有效；但当前 Codex 的 `composer.startVoiceMode` 与 `realtimeVoice` 绑定均为 null。新版 Windows 无默认 Voice 绑定，所以语音功能还需要用户在 Codex 快捷键设置中明确绑定 `Ctrl+Shift+V`。本轮未修改快捷键，未执行真人英文唤醒验收，也未发起付费模型任务。
+- 仍保留的边界：Voice 会话结束后不自动重新监听；独立 app-server 不能继承 Desktop 的进程内状态，灯的状态继续结合本地结构化 rollout 事件；配置回退不代表已同步修改 Desktop 当前输入框的档位。
+- 收口保留源码、Git 历史、宣传网页、设计截图、接口研究、外部模型和最新 `dist`；缓存与过期浏览器文本快照按本次授权移入 Windows 回收站。下一阶段从此仓库继续，不需要重建原型。

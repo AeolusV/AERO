@@ -146,7 +146,7 @@ const controlMeta: Record<ControlId, { label: string; detail: string; icon: Code
   connection: { label: "连接状态", detail: "连接或刷新 Codex app-server", icon: "lightning-outline", support: "direct" },
   threadSlots: { label: "任务状态灯", detail: "官方六槽状态语义", icon: "all-products", support: "direct" },
   activeTask: { label: "当前任务", detail: "显示当前任务摘要", icon: "codex", support: "direct" },
-  reasoning: { label: "推理强度", detail: "Low / Medium / High / XHigh", icon: "brain-medium", support: "direct" },
+  reasoning: { label: "推理强度", detail: "跟随当前 Codex 模型支持的档位", icon: "brain-medium", support: "direct" },
   newTask: { label: "新建任务", detail: "官方 newTask", icon: "compose", support: "direct" },
   continue: { label: "继续任务", detail: "通过 turn/start 推进当前任务", icon: "play-outline", support: "direct" },
   interrupt: { label: "中断", detail: "官方 turn/interrupt", icon: "x-circle", support: "direct" },
@@ -525,7 +525,7 @@ export default function App() {
   const activeThread = bridge.threads.find((thread) => thread.id === bridge.activeThreadId) ?? bridge.threads[0] ?? demoThreads[0];
   const slots = bridge.threads.length ? bridge.threads.slice(0, 6) : bridge.connection === "connected" ? [] : demoThreads;
   const connectedLabel = bridge.connection === "connected" ? "已连接" : bridge.connection === "connecting" ? "连接中" : bridge.connection === "error" ? "连接异常" : "未连接";
-  const effortOrder: ReasoningEffort[] = ["low", "medium", "high", "xhigh"];
+  const effortOrder: ReasoningEffort[] = bridge.reasoningEfforts ?? ["low", "medium", "high", "xhigh"];
   const effort = bridge.reasoningEffort;
   const displayedEffort = pendingEffort ?? effort;
   const edgeTone = windowMode.tone === "idle" ? activeThread?.tone ?? "idle" : windowMode.tone;
@@ -797,7 +797,7 @@ export default function App() {
           <div
             className={`reasoning-control ${effortConfirming ? "is-confirming" : ""} ${pendingEffort ? "is-pending" : ""}`}
             title={`推理强度：${effort}`}
-            style={{ "--effort-index": effortOrder.indexOf(displayedEffort) } as CSSProperties}
+            style={{ "--effort-index": Math.max(0, effortOrder.indexOf(displayedEffort)), "--effort-count": effortOrder.length } as CSSProperties}
           >
             <CodexIcon name="brain-medium" size={17} />
             <div className="reasoning-segments" role="group" aria-label="推理强度" aria-busy={Boolean(pendingEffort)}>
@@ -812,7 +812,7 @@ export default function App() {
                   disabled={Boolean(pendingEffort)}
                   onClick={() => void selectEffort(option)}
                 >
-                  {option === "xhigh" ? "XH" : option.slice(0, 1).toUpperCase()}
+                  {option === "xhigh" ? "XH" : option === "max" ? "MAX" : option === "minimal" ? "MIN" : option.slice(0, 1).toUpperCase()}
                 </button>
               ))}
             </div>

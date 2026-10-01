@@ -13,6 +13,22 @@ const { homedir } = require("node:os");
 
 const CONFIG_VERSION = 1;
 
+function validateVoiceBinding(hotkey = "Ctrl+Shift+V", codexHome = process.env.CODEX_HOME || join(homedir(), ".codex"), readBindings = readFileSync) {
+  let bindings;
+  try {
+    bindings = JSON.parse(readBindings(join(codexHome, "keybindings.json"), "utf8"));
+  } catch {
+    throw new Error(`无法确认 Codex Voice 热键。请在 Codex 快捷键设置中绑定 ${hotkey}；AERO 不会替你修改设置。`);
+  }
+  const normalized = (value) => String(value || "").replace(/Control|CommandOrControl/gi, "Ctrl").replace(/\s/g, "").toLowerCase();
+  if (!Array.isArray(bindings) || !bindings.some((binding) => (
+    ["composer.startVoiceMode", "realtimeVoice"].includes(binding.command)
+    && normalized(binding.key) === normalized(hotkey)
+  ))) {
+    throw new Error(`Codex Voice 未绑定 ${hotkey}（可能已禁用）。请在 Codex 设置中确认绑定；AERO 不会修改它。`);
+  }
+}
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -248,7 +264,7 @@ class WakeListenerManager extends EventEmitter {
         break;
       case "hotkey-sent":
         this.log("hotkey-sent", this.config.hotkey);
-        this.updateState({ status: "handed-off", message: "已交接给 Codex Voice；监听器保持退出" });
+        this.updateState({ status: "handed-off", message: "已发送语音热键并释放麦克风；请在 Codex 确认语音已打开" });
         break;
       case "error":
         this.log("error", event.message || "unknown-sidecar-error");
@@ -281,6 +297,7 @@ class WakeListenerManager extends EventEmitter {
     if (this.child && !this.child.killed) return this.snapshot();
     try {
       this.validateStartConfig();
+      if (!noHotkey) validateVoiceBinding(this.config.hotkey);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.log("start-rejected", message);
@@ -377,6 +394,7 @@ class WakeListenerManager extends EventEmitter {
 
   async activateVoice({ noHotkey = false } = {}) {
     try {
+      if (!noHotkey) validateVoiceBinding(this.config.hotkey);
       // A click must follow the same microphone handoff contract as a spoken
       // wake: stop the listener and wait for its audio stream to close first.
       if (this.child && !this.child.killed) await this.stop();
@@ -400,7 +418,7 @@ class WakeListenerManager extends EventEmitter {
       this.log("hotkey-sent", `${this.config.hotkey}${noHotkey ? " simulated" : ""}`);
       this.updateState({
         status: "handed-off",
-        message: "已打开 Codex Voice；监听器保持退出",
+        message: "已发送 Codex Voice 热键；监听器保持退出，请在 Codex 确认语音已打开",
         pid: null,
         device: null,
       });
@@ -479,4 +497,5 @@ module.exports = {
   WakeListenerManager,
   defaultWakeConfig,
   mergeWakeConfig,
+  validateVoiceBinding,
 };
