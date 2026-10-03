@@ -252,12 +252,12 @@ class WakeListenerManager extends EventEmitter {
         break;
       case "ready":
         this.log("listening", event.device?.name || "default-device");
-        this.updateState({ status: this.testing ? "testing" : "listening", message: this.testing ? `请在 30 秒内说“${this.config.wakePhrase}”；不会打开 Codex Voice` : `正在本地监听“${this.config.wakePhrase}”`, device: event.device || null });
+        this.updateState({ status: this.testing ? "testing" : "listening", message: this.testing ? `说声“${this.config.wakePhrase}”试试，我会听 30 秒` : `正在本地监听“${this.config.wakePhrase}”`, device: event.device || null });
         break;
       case "test-complete":
         if (!this.testing || event.cancelled) break;
         this.testResult = event.matched === true;
-        this.updateState({ status: this.testResult ? "test-passed" : "test-timeout", message: this.testResult ? "已识别唤醒词，麦克风已释放；未发送快捷键" : "30 秒内未识别到唤醒词，麦克风已释放；请检查设备后重试" });
+        this.updateState({ status: this.testResult ? "test-passed" : "test-timeout", message: this.testResult ? "听到了。这次只试听，没有打开 Codex Voice。" : "这次没听清。确认麦克风选对了，再试一次吧。" });
         break;
       case "audio-status":
         this.log("audio-status", event.message || "");

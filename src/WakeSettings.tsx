@@ -3,9 +3,9 @@ import { CodexIcon } from "./CodexIcon";
 import type { WakeConfig, WakeInputDevice, WakeListenerState, WakeRuntimeState } from "./types";
 
 const statusLabels: Record<WakeListenerState["status"], string> = {
-  testing: "测试中",
-  "test-passed": "测试通过",
-  "test-timeout": "未识别",
+  testing: "正在聆听",
+  "test-passed": "听到了",
+  "test-timeout": "没听清",
   disabled: "未启用",
   stopped: "已停止",
   starting: "启动中",
@@ -143,7 +143,7 @@ export function WakeSettings() {
     try {
       await window.codexBar.saveWakeConfig(draft);
       const result = await window.codexBar.checkWake();
-      setNotice(`检查通过 · ${result.device?.name || "系统默认麦克风"}`);
+      setNotice(`准备好了 · ${result.device?.name || "系统默认麦克风"}`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
@@ -178,7 +178,7 @@ export function WakeSettings() {
     try {
       await window.codexBar.saveWakeConfig(draft);
       setState(await window.codexBar.testWake());
-      setNotice("模型加载后，请在 30 秒内说出唤醒词。测试不会打开 Codex Voice。");
+      setNotice("准备好后，请在 30 秒内说出唤醒词。这次只试听，不打开 Codex Voice。");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
@@ -259,7 +259,7 @@ export function WakeSettings() {
               >
                 <option value="">选择输入设备</option>
                 {typeof draft.inputDevice === "number" && !currentDevice && (
-                  <option value={`legacy-index:${draft.inputDevice}`}>原型设备 #{draft.inputDevice}（请重新选择）</option>
+                  <option value={`legacy-index:${draft.inputDevice}`}>之前的麦克风（请重新选择）</option>
                 )}
                 {devices.map((device) => <option key={device.id} value={device.id}>{device.name} · {device.hostApi}</option>)}
               </select>
@@ -267,11 +267,11 @@ export function WakeSettings() {
             </span>
           </label>
           <div className="wake-hotkey-row">
-            <span><strong>Codex Voice 热键</strong><small>请在 Codex 快捷键设置中绑定此组合。新版 Windows 无默认绑定；AERO 只检查，不修改。</small></span>
+            <span><strong>Codex Voice 快捷键</strong><small>请在 Codex 设置中绑定这个快捷键。AERO 不会更改你的设置。</small></span>
             <kbd>{draft.hotkey}</kbd>
           </div>
           <div className="wake-hotkey-row wake-resume-row">
-            <span><strong>恢复监听</strong><small>语音结束后手动重新监听。自动模式入口已预留，尚未开放。</small></span>
+            <span><strong>恢复监听</strong><small>语音结束后，点一下重新监听。自动恢复稍后开放。</small></span>
             <div className="wake-resume-modes" role="group" aria-label="语音结束后的恢复模式">
               <span className="wake-resume-current">手动</span>
               <button className="wake-mini-button" type="button" disabled title="尚未开放：需要可靠的 Codex Voice 会话结束信号" aria-label="自动恢复监听（尚未开放）">自动 · 未开放</button>
@@ -301,8 +301,8 @@ export function WakeSettings() {
           {runtime && runtime.status !== "idle" && (
             <div className={`wake-runtime-progress ${runtime.status}`} aria-live="polite">
               <span>
-                <strong>{runtime.status === "ready" ? "托管环境已就绪" : runtime.status === "error" ? "配置未完成" : "正在配置本地环境"}</strong>
-                <small>{runtime.message}</small>
+                <strong>{runtime.status === "ready" ? "语音准备好了" : runtime.status === "error" ? "暂时没能准备好" : runtime.status === "downloading" ? "正在下载语音所需内容" : "正在准备语音…"}</strong>
+                <small>{runtime.status === "error" ? runtime.message : runtime.status === "ready" ? "选好麦克风，就可以开始了。" : "所需内容会保存在这台电脑上。"}</small>
               </span>
               <div
                 className="wake-runtime-progress-track"
@@ -341,17 +341,16 @@ export function WakeSettings() {
       {!runtimeInstalling && (
         <div className="wake-actions">
           <button className="wake-primary-action" disabled={Boolean(busy)} onClick={() => void save()}><CodexIcon name="check" size={15} />保存设置</button>
-          <button disabled={Boolean(busy) || !canEnable} onClick={() => void runCheck()}><CodexIcon name="flask" size={15} />检查配置</button>
-          <button disabled={Boolean(busy) || !canEnable || isRunning || state.status === "handed-off"} onClick={() => void testWake()}><CodexIcon name="mic" size={15} />测试唤醒</button>
-          {isRunning && <button disabled={Boolean(busy)} onClick={() => void window.codexBar?.stopWake().then(setState).catch((reason) => setError(String(reason)))}><CodexIcon name="x-circle" size={15} />停止监听 / 测试</button>}
+          <button disabled={Boolean(busy) || !canEnable} onClick={() => void runCheck()}><CodexIcon name="flask" size={15} />确认设置</button>
+          <button disabled={Boolean(busy) || !canEnable || isRunning || state.status === "handed-off"} onClick={() => void testWake()}><CodexIcon name="mic" size={15} />试试唤醒</button>
+          {isRunning && <button disabled={Boolean(busy)} onClick={() => void window.codexBar?.stopWake().then(setState).catch((reason) => setError(String(reason)))}><CodexIcon name="x-circle" size={15} />暂停聆听</button>}
           {state.status === "handed-off" && state.config.enabled && (
             <button disabled={Boolean(busy)} onClick={() => void restart()}><CodexIcon name="play-outline" size={15} />重新监听</button>
           )}
           <button disabled={Boolean(busy)} onClick={() => void window.codexBar?.openWakeLog()}><CodexIcon name="terminal" size={15} />打开日志</button>
-          {isRunning && <span className="wake-live-note">PID {state.pid ?? "—"}</span>}
         </div>
       )}
-      <p className="wake-feedback">先一键配置 → 选择麦克风 → 检查配置 → 测试唤醒。测试前请结束 Codex Voice；通过后再开启正式监听。</p>
+      <p className="wake-feedback">准备好语音，选一个麦克风，再说声“Hey Codex”试试。请先结束 Codex Voice；看到“听到了”后，就可以开启监听。</p>
       {(notice || error) && <p className={`wake-feedback ${error ? "error" : ""}`} role="status">{error || notice}</p>}
     </section>
   );

@@ -79,7 +79,7 @@ ipcMain.handle("aero-wake:start", () => wakeState);
 ipcMain.handle("aero-wake:stop", () => wakeState);
 ipcMain.handle("aero-wake:test", () => {
   wakeState.status = "test-passed";
-  wakeState.message = "已识别唤醒词，麦克风已释放；未发送快捷键";
+  wakeState.message = "听到了。这次只试听，没有打开 Codex Voice。";
   BrowserWindow.getAllWindows()[0]?.webContents.send("aero-wake:state", wakeState);
   return wakeState;
 });
@@ -148,13 +148,13 @@ app.whenReady().then(async () => {
   console.log("WAKE_RESUME_ENTRY_OK manual=current automatic=disabled");
   if (runtimePreview !== "installing") {
     const testClicked = await window.webContents.executeJavaScript(`(() => {
-      const button = [...document.querySelectorAll('.wake-actions button')].find(item => item.textContent.includes('测试唤醒'));
+      const button = [...document.querySelectorAll('.wake-actions button')].find(item => item.textContent.includes('试试唤醒'));
       if (!button || button.disabled) return false;
       button.click(); return true;
     })()`);
     if (!testClicked) throw new Error("Wake test button was not usable");
     await new Promise(resolve => setTimeout(resolve, 250));
-    const passed = await window.webContents.executeJavaScript("document.querySelector('.wake-status-pill')?.textContent === '测试通过'");
+    const passed = await window.webContents.executeJavaScript("document.querySelector('.wake-status-pill')?.textContent === '听到了' && !document.querySelector('.wake-panel')?.textContent.includes('测试通过')");
     if (!passed) throw new Error("Wake test result did not render");
   }
   const activeTab = await window.webContents.executeJavaScript("document.querySelector('.settings-tabs button.active')?.textContent?.trim() || ''");
