@@ -1029,6 +1029,9 @@ button, input, .control-row, .customizer { -webkit-app-region: no-drag; }
 .wake-hotkey-row strong,
 .wake-hotkey-row small { display: block; }
 .wake-hotkey-row strong { font-size: 10px; font-weight: 640; }
+.wake-resume-modes { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.wake-resume-current { padding: 6px 9px; border-radius: 9px; color: var(--text); background: rgba(111,143,203,.1); font-size: 9px; font-weight: 630; }
+.wake-resume-row > span { min-width: 0; }
 .wake-hotkey-row small { margin-top: 2px; color: var(--muted); font-size: 8.5px; }
 .wake-hotkey-row kbd {
   padding: 5px 8px;

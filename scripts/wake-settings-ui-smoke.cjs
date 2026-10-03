@@ -138,6 +138,14 @@ app.whenReady().then(async () => {
   if (!wakePanelMounted) throw new Error("Wake settings panel did not mount");
   const installButtonMounted = await window.webContents.executeJavaScript("Boolean(document.querySelector('.wake-runtime-install'))");
   if (!installButtonMounted) throw new Error("One-click runtime install button did not mount");
+  const resumeMode = await window.webContents.executeJavaScript(`(() => {
+    const group = document.querySelector('.wake-resume-modes');
+    const automatic = group?.querySelector('button');
+    automatic?.click();
+    return { present: Boolean(group), manual: group?.querySelector('.wake-resume-current')?.textContent, disabled: automatic?.disabled, unavailable: automatic?.getAttribute('aria-label')?.includes('尚未开放') };
+  })()`);
+  if (!resumeMode.present || resumeMode.manual !== '手动' || !resumeMode.disabled || !resumeMode.unavailable) throw new Error("Automatic resume placeholder is not safely disabled");
+  console.log("WAKE_RESUME_ENTRY_OK manual=current automatic=disabled");
   if (runtimePreview !== "installing") {
     const testClicked = await window.webContents.executeJavaScript(`(() => {
       const button = [...document.querySelectorAll('.wake-actions button')].find(item => item.textContent.includes('测试唤醒'));

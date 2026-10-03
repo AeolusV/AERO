@@ -270,6 +270,13 @@ export function WakeSettings() {
             <span><strong>Codex Voice 热键</strong><small>请在 Codex 快捷键设置中绑定此组合。新版 Windows 无默认绑定；AERO 只检查，不修改。</small></span>
             <kbd>{draft.hotkey}</kbd>
           </div>
+          <div className="wake-hotkey-row wake-resume-row">
+            <span><strong>恢复监听</strong><small>语音结束后手动重新监听。自动模式入口已预留，尚未开放。</small></span>
+            <div className="wake-resume-modes" role="group" aria-label="语音结束后的恢复模式">
+              <span className="wake-resume-current">手动</span>
+              <button className="wake-mini-button" type="button" disabled title="尚未开放：需要可靠的 Codex Voice 会话结束信号" aria-label="自动恢复监听（尚未开放）">自动 · 未开放</button>
+            </div>
+          </div>
         </article>
 
         <article className="settings-card wake-runtime-card">
