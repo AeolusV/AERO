@@ -12,6 +12,7 @@ Windows + Node.js 24 LTS，在仓库根目录运行：
 
 ```powershell
 npm.cmd ci
+npm.cmd run runtime:electron
 npm.cmd run dev
 ```
 

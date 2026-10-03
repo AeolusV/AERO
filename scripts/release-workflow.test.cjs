@@ -8,6 +8,7 @@ assert.ok(!workflow.includes("pull_request_target") && !workflow.includes("conte
 assert.ok(!workflow.includes("gh release create") && !workflow.includes("secrets."));
 assert.ok(workflow.includes("github.ref == 'refs/heads/main'"));
 assert.ok(workflow.includes("persist-credentials: false"));
+assert.ok(workflow.includes("npm.cmd run runtime:electron"));
 assert.equal([...workflow.matchAll(/uses: actions\/[^@]+@([a-f0-9]{40})/g)].length, 4);
 for (const value of ["npm.cmd run verify", "--package-smoke", "PACKAGE_SMOKE_OK", "archive-portable.ps1", "subject-path:", "attestations: write", "id-token: write", "provenance.outputs.bundle-path", "retention-days: 14"]) assert.ok(workflow.includes(value), value);
 const archive = readFileSync(join(root, "scripts/archive-portable.ps1"), "utf8");

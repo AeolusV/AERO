@@ -86,6 +86,7 @@ AERO runs on Windows alongside an installed, signed-in Codex Desktop. It is curr
 git clone https://github.com/AeolusV/AERO.git
 Set-Location AERO
 npm.cmd ci
+npm.cmd run runtime:electron
 npm.cmd run build
 npm.cmd start
 ```

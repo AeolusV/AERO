@@ -12,6 +12,7 @@ On Windows with Node.js 24 LTS, run from the repository root:
 
 ```powershell
 npm.cmd ci
+npm.cmd run runtime:electron
 npm.cmd run dev
 ```
 

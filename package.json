@@ -13,6 +13,7 @@
   "engines": { "node": ">=24.0.0" },
   "scripts": {
     "assets:tray": "node scripts/generate-tray-icon.cjs",
+    "runtime:electron": "node node_modules/electron/install.js",
     "verify:tray": "electron scripts/verify-tray-icon.cjs",
     "dev": "concurrently -k \"vite --config vite.config.ts --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron . --dev\"",
     "check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
@@ -26,7 +27,7 @@
     "wake:enable-current-user": "electron scripts/enable-wake-current-user.cjs",
     "preview": "vite preview --config vite.config.ts --host 127.0.0.1",
     "start": "electron .",
-    "package:portable": "npm run build && node scripts/package-portable.cjs"
+    "package:portable": "npm run runtime:electron && npm run build && node scripts/package-portable.cjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

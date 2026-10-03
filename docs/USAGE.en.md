@@ -12,6 +12,7 @@ Currently supported on Windows from source; there is no installer. Prepare Node.
 
 ```powershell
 npm.cmd ci
+npm.cmd run runtime:electron
 npm.cmd run build
 npm.cmd start
 ```

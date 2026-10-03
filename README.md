@@ -86,6 +86,7 @@ AERO 面向 Windows，需要已安装并登录的 Codex Desktop。目前提供�
 git clone https://github.com/AeolusV/AERO.git
 Set-Location AERO
 npm.cmd ci
+npm.cmd run runtime:electron
 npm.cmd run build
 npm.cmd start
 ```

@@ -33,6 +33,8 @@ jobs:
           "AERO_CI_ROOT=$root" >> $env:GITHUB_ENV
       - name: Install locked dependencies
         run: npm.cmd ci
+      - name: Install the locked Electron runtime
+        run: npm.cmd run runtime:electron
       - name: Test, type-check and build
         run: npm.cmd run verify
       - name: Package Windows x64
