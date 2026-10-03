@@ -1,4 +1,4 @@
-# Candidate downloads and verification
+# Downloads and verification
 
 [简体中文](DOWNLOADS.md) · **English**
 
@@ -6,7 +6,15 @@
 
 The current version is **0.1.0-beta.1**, for Windows x64 users who want an early look. [Explore this beta](BETA.en.md). Downloads are unsigned; this is not a stable release or confirmation of all desktop behavior.
 
-## Obtain a candidate
+## Download the beta
+
+Download the application ZIP from **Assets** on [AERO 0.1.0 Beta 1](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.1). Release assets do not have the Actions 14-day automatic expiry; they remain available unless a maintainer removes or replaces them.
+
+Choose the `.zip` beginning with `AERO-0.1.0-beta.1-win-x64`, plus its matching `.sha256` file. `provenance.jsonl` contains build provenance. GitHub's automatic **Source code** downloads are source, not runnable application packages.
+
+Verify the application ZIP, extract the entire folder and run `AERO.exe`. Do not move the exe alone. No installation is needed.
+
+## Actions candidates (maintainers)
 
 Maintainers select **Windows portable candidate → Run workflow → main** in [Actions](https://github.com/AeolusV/AERO/actions/workflows/portable-candidate.yml). The run checks out its source commit, installs locked dependencies, runs regressions, builds and checks isolated packaged startup, then produces a ZIP, SHA-256 checksum and provenance attestation. It does not connect to real Codex, record audio, send a voice hotkey or modify personal settings.
 
@@ -39,6 +47,6 @@ Confirm the output identifies AERO, the candidate workflow and the intended sour
 
 Provenance identifies the build origin. It is not Windows publisher signing, a security audit, proof of reproducibility or functional acceptance. Windows security warnings may still occur; do not disable system security. Human acceptance testing is not a prerequisite for this beta: real voice wake-up and the full desktop interaction flow have not received end-to-end acceptance testing in this round. They remain available to try, not certified as a stable experience.
 
-Public Beta publication requires a separate author decision. The workflow has no permission to create Releases.
+The beta is a GitHub pre-release, not a stable release. The build workflow still does not create Releases automatically; maintainers publish public assets separately.
 
 Reference: [GitHub build provenance](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations).
