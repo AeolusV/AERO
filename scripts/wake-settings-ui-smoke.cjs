@@ -152,12 +152,18 @@ app.whenReady().then(async () => {
   })()`);
   if (disclosureOpen.expanded !== 'true' || disclosureOpen.inert || disclosureOpen.height <= 100 || !disclosureOpen.focus) throw new Error(`Advanced settings did not expand or accept keyboard focus: ${JSON.stringify(disclosureOpen)}`);
   if (process.env.AERO_WAKE_UI_ADVANCED !== '1') {
-    await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-trigger').click()");
-    await new Promise(resolve => setTimeout(resolve, 450));
-    const closedAgain = await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-reveal').inert && document.querySelector('.wake-panel .settings-disclosure-reveal').getBoundingClientRect().height < 1");
-    if (!closedAgain) throw new Error("Advanced settings did not collapse cleanly");
+    await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-reveal input').dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', bubbles:true}))");
+    await new Promise(resolve => setTimeout(resolve, 650));
+    const closedAgain = await window.webContents.executeJavaScript("({ inert:document.querySelector('.wake-panel .settings-disclosure-reveal').inert, height:document.querySelector('.wake-panel .settings-disclosure-reveal').getBoundingClientRect().height, focus:document.activeElement === document.querySelector('.wake-panel .settings-disclosure-trigger') })");
+    if (!closedAgain.inert || closedAgain.height >= 1 || !closedAgain.focus) throw new Error(`Advanced settings did not collapse cleanly: ${JSON.stringify(closedAgain)}`);
   }
   console.log("SETTINGS_DISCLOSURE_OK collapsed=inert expanded=focusable motion=settled");
+  const footerVisible = await window.webContents.executeJavaScript(`(() => {
+    const footer = document.querySelector('.wake-footer').getBoundingClientRect();
+    const panel = document.querySelector('.wake-panel').getBoundingClientRect();
+    return footer.top >= panel.top && footer.bottom <= panel.bottom + 1;
+  })()`);
+  if (!footerVisible) throw new Error('Voice actions must remain visible without scrolling');
   const resumeMode = await window.webContents.executeJavaScript(`(() => {
     const group = document.querySelector('.wake-resume-modes');
     const automatic = group?.querySelector('button');

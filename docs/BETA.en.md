@@ -6,11 +6,11 @@ Keep your tasks in sight. Keep your focus yours.
 
 AERO brings a lightweight floating bar to Codex Desktop on Windows. Expand for everyday controls. Collapse to six quiet task lights while you stay with your work.
 
-## Beta 2: an easier start for voice wake-up
+## Beta 2: easier settings, a more natural wake-up
 
-New users no longer inherit prototype paths from a developer's computer. One-click setup downloads an isolated runtime and English model without installing global Python launchers or registering Python in Windows. Settings explain the model name and size; the user guide includes official download links, manual setup and retry instructions.
+Everyday settings stay in sight. Brand colors, task-light colors and voice details unfold when you need them. Consistent light and dark appearances and gentle transitions make each adjustment feel calmer.
 
-Test wake-up is new: once the model loads, say the phrase within 30 seconds to check local recognition. Testing sends no hotkey and opens no Codex Voice session. It releases the microphone on completion and can be stopped at any time. Enable normal listening after a passing test.
+Choose Prepare voice, select your microphone, and try saying “Hey Codex”. When AERO hears you, enable listening. The try-out doesn't open Codex Voice and can be paused at any time. After the initial downloads, wake recognition runs locally and offline.
 
 ## What's inside
 

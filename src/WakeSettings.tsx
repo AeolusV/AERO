@@ -37,6 +37,7 @@ export function WakeSettings() {
   const isRunning = ["starting", "listening", "testing", "stopping", "triggered"].includes(state?.status ?? "");
   const runtimeInstalling = ["checking", "downloading", "installing", "verifying"].includes(runtime?.status ?? "");
   const canEnable = Boolean(draft?.wakePhrase.trim() && draft.pythonPath && draft.modelPath && draft.inputDevice != null);
+  const hasChanges = Boolean(draft && state && JSON.stringify(draft) !== JSON.stringify(state.config));
   const currentDevice = useMemo(() => {
     const selection = draft?.inputDevice;
     if (selection == null) return null;
@@ -157,8 +158,10 @@ export function WakeSettings() {
     setBusy("restart");
     setError("");
     try {
+      if (draft) await window.codexBar.saveWakeConfig(draft);
       const next = await window.codexBar.startWake();
       setState(next);
+      setDraft(next.config);
       setNotice("正在重新启动本地监听");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -341,9 +344,10 @@ export function WakeSettings() {
           </div>
       </SettingsDisclosure>
 
+      <footer className="wake-footer">
       {!runtimeInstalling && (
         <div className="wake-actions">
-          <button disabled={Boolean(busy)} onClick={() => void save()}>保存</button>
+          <button disabled={Boolean(busy) || !hasChanges} onClick={() => void save()}>{busy === "save" ? "正在保存…" : hasChanges ? "保存更改" : "已保存"}</button>
           <button className="wake-primary-action" disabled={Boolean(busy) || !canEnable || isRunning || state.status === "handed-off"} onClick={() => void testWake()}><CodexIcon name="mic" size={15} />试试唤醒</button>
           {isRunning && <button disabled={Boolean(busy)} onClick={() => void window.codexBar?.stopWake().then(setState).catch((reason) => setError(String(reason)))}><CodexIcon name="x-circle" size={15} />暂停聆听</button>}
           {state.status === "handed-off" && state.config.enabled && (
@@ -353,6 +357,7 @@ export function WakeSettings() {
       )}
       <p className="wake-hint">先结束 Codex Voice，再试着说出唤醒词。这次只试听，不会打开语音对话。</p>
       {(notice || error) && <p className={`wake-feedback ${error ? "error" : ""}`} role="status">{error || notice}</p>}
+      </footer>
     </section>
   );
 }

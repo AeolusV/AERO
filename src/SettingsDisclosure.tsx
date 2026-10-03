@@ -14,7 +14,15 @@ export function SettingsDisclosure({ title, description, children }: {
         <span><strong>{title}</strong><small>{description}</small></span>
         <ChevronDown size={16} aria-hidden="true" />
       </button>
-      <div className="settings-disclosure-reveal" id={id} inert={!open} aria-hidden={!open}>
+      <div className="settings-disclosure-reveal" id={id} inert={!open} aria-hidden={!open}
+        onKeyDown={event => {
+          if (event.key === "Escape") {
+            event.stopPropagation();
+            const trigger = event.currentTarget.previousElementSibling as HTMLButtonElement | null;
+            trigger?.focus();
+            setOpen(false);
+          }
+        }}>
         <div className="settings-disclosure-clip"><div className="settings-disclosure-content">{children}</div></div>
       </div>
     </section>

@@ -942,46 +942,6 @@ export default function App() {
 
           {settingsTab === "appearance" && (
             <section className="appearance-panel" aria-label="外观设置">
-              <SettingsDisclosure title="标志与配色" description="选择喜欢的色彩与标志风格">
-              <article className="settings-card brand-showcase">
-                <BrandMark palette={brandPalette} surface={brandSurface} size={76} />
-                <span>
-                  <strong>Aero</strong>
-                  <small>流动、状态与轻量控制</small>
-                </span>
-              </article>
-
-              <article className="settings-card palette-card">
-                <div className="settings-card-heading">
-                  <span><strong>标志配色</strong><small>主 Bar 与设置页同步</small></span>
-                  <span className="setting-value">{brandPalettes.find((item) => item.id === brandPalette)?.label}</span>
-                </div>
-                <div className="palette-options">
-                  {brandPalettes.map((palette) => (
-                    <button
-                      key={palette.id}
-                      className={brandPalette === palette.id ? "active" : ""}
-                      data-sound="tick"
-                      aria-label={`使用 ${palette.label} 配色`}
-                      aria-pressed={brandPalette === palette.id}
-                      onClick={() => setBrandPalette(palette.id)}
-                    >
-                      <BrandMark palette={palette.id} surface="clear" size={28} />
-                      <span>{palette.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </article>
-
-              <div className="setting-row">
-                <span><strong>标志底色</strong><small>柔和卡片，或只保留标志</small></span>
-                <div className="segmented-setting" role="group" aria-label="标志底色">
-                  <button className={brandSurface === "soft" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "soft"} onClick={() => setBrandSurface("soft")}>柔和</button>
-                  <button className={brandSurface === "clear" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "clear"} onClick={() => setBrandSurface("clear")}>透明</button>
-                </div>
-              </div>
-              </SettingsDisclosure>
-
               <article className="settings-card appearance-options">
                 <div className="setting-row">
                   <span><strong>控制栏外观</strong><small>完整控制栏的明暗风格</small></span>
@@ -1019,6 +979,36 @@ export default function App() {
                   </button>
                 </div>
               </article>
+
+              <SettingsDisclosure title="标志与配色" description="选择喜欢的色彩与标志风格">
+                <article className="settings-card brand-showcase">
+                  <BrandMark palette={brandPalette} surface={brandSurface} size={76} />
+                  <span><strong>Aero</strong><small>流动、状态与轻量控制</small></span>
+                </article>
+                <article className="settings-card palette-card">
+                  <div className="settings-card-heading">
+                    <span><strong>标志配色</strong><small>主 Bar 与设置页同步</small></span>
+                    <span className="setting-value">{brandPalettes.find(item => item.id === brandPalette)?.label}</span>
+                  </div>
+                  <div className="palette-options">
+                    {brandPalettes.map(palette => (
+                      <button key={palette.id} className={brandPalette === palette.id ? "active" : ""}
+                        data-sound="tick" aria-label={`使用 ${palette.label} 配色`}
+                        aria-pressed={brandPalette === palette.id} onClick={() => setBrandPalette(palette.id)}>
+                        <BrandMark palette={palette.id} surface="clear" size={28} />
+                        <span>{palette.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </article>
+                <div className="setting-row">
+                  <span><strong>标志底色</strong><small>柔和卡片，或只保留标志</small></span>
+                  <div className="segmented-setting" role="group" aria-label="标志底色">
+                    <button className={brandSurface === "soft" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "soft"} onClick={() => setBrandSurface("soft")}>柔和</button>
+                    <button className={brandSurface === "clear" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "clear"} onClick={() => setBrandSurface("clear")}>透明</button>
+                  </div>
+                </div>
+              </SettingsDisclosure>
 
               <SettingsDisclosure title="状态灯颜色" description="了解五种状态，或调出自己的颜色">
               <article className="settings-card lamp-color-card">
