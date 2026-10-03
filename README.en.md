@@ -6,6 +6,8 @@
 
 A lightweight desktop companion for Codex Desktop. **By Aeolus.**
 
+**0.1.0 Beta 1** · [Download and run](docs/DOWNLOADS.en.md) · [What's in this beta](docs/BETA.en.md)
+
 [Get started](#get-started) · [User guide](docs/USAGE.en.md) · [Developer guide](docs/DEVELOPMENT.en.md) · [Feedback](https://github.com/AeolusV/AERO/issues) · [License](LICENSE)
 
 ![AERO: Keep your tasks in sight](docs/images/aero-promo-hero-en.png)

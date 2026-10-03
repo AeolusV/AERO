@@ -6,6 +6,8 @@
 
 为 Codex Desktop 而作的轻盈桌面伴侣。**By Aeolus.**
 
+**0.1.0 Beta 1** · [下载与运行](docs/DOWNLOADS.md) · [版本介绍](docs/BETA.md)
+
 [开始使用](#开始使用) · [使用指南](docs/USAGE.md) · [开发指南](docs/DEVELOPMENT.md) · [反馈](https://github.com/AeolusV/AERO/issues) · [授权](LICENSE)
 
 ![AERO 品牌宣传：让任务留在视野里](docs/images/aero-promo-hero.png)

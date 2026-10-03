@@ -4,7 +4,7 @@
 
 [User guide](USAGE.en.md) · [Developer guide](DEVELOPMENT.en.md) · [Signing](SIGNING.en.md)
 
-This workflow produces an unsigned Windows x64 candidate. It does not automatically create a Release, represent a stable version or confirm all desktop behavior.
+The current version is **0.1.0-beta.1**, for Windows x64 users who want an early look. [Explore this beta](BETA.en.md). Downloads are unsigned; this is not a stable release or confirmation of all desktop behavior.
 
 ## Obtain a candidate
 
@@ -37,7 +37,7 @@ Confirm the output identifies AERO, the candidate workflow and the intended sour
 
 ## Before use
 
-Provenance identifies the build origin. It is not Windows publisher signing, a security audit, proof of reproducibility or functional acceptance. Windows security warnings may still occur; do not disable system security. Real Codex navigation, effort writes, tray and dragging behavior, first-user voice setup and human wake-up still require separate validation.
+Provenance identifies the build origin. It is not Windows publisher signing, a security audit, proof of reproducibility or functional acceptance. Windows security warnings may still occur; do not disable system security. Human acceptance testing is not a prerequisite for this beta: real voice wake-up and the full desktop interaction flow have not received end-to-end acceptance testing in this round. They remain available to try, not certified as a stable experience.
 
 Public Beta publication requires a separate author decision. The workflow has no permission to create Releases.
 
