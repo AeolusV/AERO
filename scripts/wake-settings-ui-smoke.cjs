@@ -3,6 +3,7 @@ const { writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 
 app.disableHardwareAcceleration();
+if (process.env.AERO_WAKE_UI_PROFILE) app.setPath("userData", process.env.AERO_WAKE_UI_PROFILE);
 
 const realtek = {
   id: "MME␟麦克风阵列 (Realtek(R) Audio)",
@@ -76,6 +77,12 @@ ipcMain.handle("aero-wake:save-config", () => wakeState);
 ipcMain.handle("aero-wake:set-enabled", () => wakeState);
 ipcMain.handle("aero-wake:start", () => wakeState);
 ipcMain.handle("aero-wake:stop", () => wakeState);
+ipcMain.handle("aero-wake:test", () => {
+  wakeState.status = "test-passed";
+  wakeState.message = "已识别唤醒词，麦克风已释放；未发送快捷键";
+  BrowserWindow.getAllWindows()[0]?.webContents.send("aero-wake:state", wakeState);
+  return wakeState;
+});
 ipcMain.handle("aero-wake:list-devices", () => [realtek]);
 ipcMain.handle("aero-wake:check", () => ({ modelPath: wakeState.config.modelPath, deviceIndex: 4, device: realtek }));
 ipcMain.handle("aero-wake:open-log", () => "");
@@ -98,7 +105,11 @@ app.whenReady().then(async () => {
       sandbox: true,
     },
   });
+  const rendererErrors = [];
+  window.webContents.on("console-message", event => { if (event.level === "error") rendererErrors.push(event.message); });
   await window.loadFile(join(__dirname, "..", "dist", "index.html"));
+  const identity = await window.webContents.executeJavaScript("({title:document.title, url:location.href, overlay:Boolean(document.querySelector('vite-error-overlay'))})");
+  if (!/Aero/i.test(identity.title) || !identity.url.startsWith("file:") || identity.overlay) throw new Error("Wrong page identity or error overlay");
   await window.webContents.executeJavaScript(`(() => {
     const style = document.createElement('style');
     style.textContent = '* { transition: none !important; animation: none !important; }';
@@ -127,6 +138,17 @@ app.whenReady().then(async () => {
   if (!wakePanelMounted) throw new Error("Wake settings panel did not mount");
   const installButtonMounted = await window.webContents.executeJavaScript("Boolean(document.querySelector('.wake-runtime-install'))");
   if (!installButtonMounted) throw new Error("One-click runtime install button did not mount");
+  if (runtimePreview !== "installing") {
+    const testClicked = await window.webContents.executeJavaScript(`(() => {
+      const button = [...document.querySelectorAll('.wake-actions button')].find(item => item.textContent.includes('测试唤醒'));
+      if (!button || button.disabled) return false;
+      button.click(); return true;
+    })()`);
+    if (!testClicked) throw new Error("Wake test button was not usable");
+    await new Promise(resolve => setTimeout(resolve, 250));
+    const passed = await window.webContents.executeJavaScript("document.querySelector('.wake-status-pill')?.textContent === '测试通过'");
+    if (!passed) throw new Error("Wake test result did not render");
+  }
   const activeTab = await window.webContents.executeJavaScript("document.querySelector('.settings-tabs button.active')?.textContent?.trim() || ''");
   if (activeTab !== "语音") throw new Error(`Unexpected active settings tab: ${activeTab}`);
   const metrics = await window.webContents.executeJavaScript(`(() => {
@@ -148,9 +170,11 @@ app.whenReady().then(async () => {
   window.webContents.invalidate();
   await new Promise((resolve) => setTimeout(resolve, 240));
   const image = await window.capturePage();
-  const output = join(__dirname, "..", "output", runtimePreview === "installing" ? "wake-settings-installing-smoke.png" : "wake-settings-smoke.png");
+  const output = process.env.AERO_WAKE_UI_OUTPUT || join(__dirname, "..", "output", runtimePreview === "installing" ? "wake-settings-installing-smoke.png" : "wake-settings-smoke.png");
   writeFileSync(output, image.toPNG());
+  if (rendererErrors.length) throw new Error(`Renderer errors: ${rendererErrors.join("; ")}`);
+  console.log("WAKE_UI_CHECKS_OK identity=pass nonblank=pass overlay=pass console=pass interaction=pass screenshot=pass");
   console.log(`WAKE_UI_SMOKE_OK ${output}`);
   window.destroy();
   app.quit();
-});
+}).catch(error => { console.error(error); app.exit(1); });

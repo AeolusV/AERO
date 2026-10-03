@@ -108,6 +108,9 @@ export type WindowMode = {
 };
 
 export type WakeListenerStatus =
+  | "testing"
+  | "test-passed"
+  | "test-timeout"
   | "disabled"
   | "stopped"
   | "starting"
@@ -216,6 +219,7 @@ export type CodexBarApi = {
   saveWakeConfig: (patch: Partial<WakeConfig>) => Promise<WakeListenerState>;
   setWakeEnabled: (enabled: boolean) => Promise<WakeListenerState>;
   startWake: () => Promise<WakeListenerState>;
+  testWake: () => Promise<WakeListenerState>;
   stopWake: () => Promise<WakeListenerState>;
   activateVoice: () => Promise<WakeListenerState>;
   listWakeDevices: () => Promise<WakeInputDevice[]>;

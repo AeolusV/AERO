@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld("codexBar", {
   saveWakeConfig: (patch) => ipcRenderer.invoke("aero-wake:save-config", patch),
   setWakeEnabled: (enabled) => ipcRenderer.invoke("aero-wake:set-enabled", Boolean(enabled)),
   startWake: () => ipcRenderer.invoke("aero-wake:start"),
+    testWake: () => ipcRenderer.invoke("aero-wake:test"),
   stopWake: () => ipcRenderer.invoke("aero-wake:stop"),
   activateVoice: () => ipcRenderer.invoke("aero-wake:activate-voice"),
   listWakeDevices: () => ipcRenderer.invoke("aero-wake:list-devices"),

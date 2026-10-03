@@ -105,7 +105,7 @@ try {
   }
 
   Emit-Event -Event "progress" -Status "installing" -Progress 30 -Message "Installing isolated Python $($manifest.python.version)"
-  Invoke-Checked -FilePath $uvExe -Arguments @("python", "install", $manifest.python.version, "--install-dir", $pythonRoot, "--no-progress") -Environment $uvEnvironment
+  Invoke-Checked -FilePath $uvExe -Arguments @("python", "install", $manifest.python.version, "--install-dir", $pythonRoot, "--no-bin", "--no-registry", "--no-progress") -Environment $uvEnvironment
 
   if (-not (Test-Path -LiteralPath $pythonExe)) {
     Emit-Event -Event "progress" -Status "installing" -Progress 43 -Message "Creating AERO wake environment"

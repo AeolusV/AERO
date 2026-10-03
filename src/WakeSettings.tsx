@@ -3,6 +3,9 @@ import { CodexIcon } from "./CodexIcon";
 import type { WakeConfig, WakeInputDevice, WakeListenerState, WakeRuntimeState } from "./types";
 
 const statusLabels: Record<WakeListenerState["status"], string> = {
+  testing: "测试中",
+  "test-passed": "测试通过",
+  "test-timeout": "未识别",
   disabled: "未启用",
   stopped: "已停止",
   starting: "启动中",
@@ -14,7 +17,7 @@ const statusLabels: Record<WakeListenerState["status"], string> = {
 };
 
 function selectedDeviceId(config: WakeConfig | null) {
-  if (!config?.inputDevice) return "";
+  if (config?.inputDevice == null) return "";
   return typeof config.inputDevice === "number"
     ? `legacy-index:${config.inputDevice}`
     : config.inputDevice.id;
@@ -30,12 +33,12 @@ export function WakeSettings() {
   const [error, setError] = useState("");
 
   const deviceValue = selectedDeviceId(draft);
-  const isRunning = ["starting", "listening", "stopping", "triggered"].includes(state?.status ?? "");
+  const isRunning = ["starting", "listening", "testing", "stopping", "triggered"].includes(state?.status ?? "");
   const runtimeInstalling = ["checking", "downloading", "installing", "verifying"].includes(runtime?.status ?? "");
-  const canEnable = Boolean(draft?.wakePhrase.trim() && draft.pythonPath && draft.modelPath && draft.inputDevice);
+  const canEnable = Boolean(draft?.wakePhrase.trim() && draft.pythonPath && draft.modelPath && draft.inputDevice != null);
   const currentDevice = useMemo(() => {
     const selection = draft?.inputDevice;
-    if (!selection) return null;
+    if (selection == null) return null;
     if (typeof selection === "number") {
       return devices.find((device) => device.index === selection) ?? null;
     }
@@ -168,6 +171,21 @@ export function WakeSettings() {
     if (path) updateDraft({ pythonPath: path });
   };
 
+  const testWake = async () => {
+    if (!window.codexBar || !draft || busy || isRunning) return;
+    setBusy("test");
+    setError("");
+    try {
+      await window.codexBar.saveWakeConfig(draft);
+      setState(await window.codexBar.testWake());
+      setNotice("模型加载后，请在 30 秒内说出唤醒词。测试不会打开 Codex Voice。");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setBusy("");
+    }
+  };
+
   const chooseModel = async () => {
     const path = await window.codexBar?.chooseWakeModel();
     if (path) updateDraft({ modelPath: path });
@@ -214,7 +232,7 @@ export function WakeSettings() {
             role="switch"
             aria-checked={state.config.enabled}
             aria-label={state.config.enabled ? "关闭本地语音唤醒" : "启用本地语音唤醒"}
-            disabled={Boolean(busy)}
+            disabled={Boolean(busy) || state.status === "testing"}
             onClick={() => void toggleEnabled()}
           ><span /></button>
         </span>
@@ -256,11 +274,11 @@ export function WakeSettings() {
 
         <article className="settings-card wake-runtime-card">
           <div className="settings-card-heading">
-            <span><strong>本地运行环境</strong><small>模型保留在仓库外部，不随 AERO 提交。</small></span>
+            <span><strong>本地运行环境</strong><small>首次联网配置，之后离线监听；无需预装 Python。</small></span>
             <button
               className="wake-runtime-install"
               data-sound="confirm"
-              disabled={Boolean(busy) || runtimeInstalling}
+              disabled={Boolean(busy) || runtimeInstalling || isRunning}
               onClick={() => void installRuntime()}
               title="从经过校验的官方来源配置隔离运行环境"
             >
@@ -306,6 +324,10 @@ export function WakeSettings() {
             <CodexIcon name="lightning-outline" size={15} />
             <span>触发后监听器会先释放麦克风，再发送热键并退出。Codex Voice 结束后的自动恢复尚未启用。</span>
           </div>
+          <div className="wake-runtime-note">
+            <CodexIcon name="flask" size={15} />
+            <span>英文模型：vosk-model-small-en-us-0.15（约 40 MB）。一键配置会下载并填入路径；也可选择已有的解压目录。</span>
+          </div>
         </article>
       </div>
 
@@ -313,6 +335,8 @@ export function WakeSettings() {
         <div className="wake-actions">
           <button className="wake-primary-action" disabled={Boolean(busy)} onClick={() => void save()}><CodexIcon name="check" size={15} />保存设置</button>
           <button disabled={Boolean(busy) || !canEnable} onClick={() => void runCheck()}><CodexIcon name="flask" size={15} />检查配置</button>
+          <button disabled={Boolean(busy) || !canEnable || isRunning || state.status === "handed-off"} onClick={() => void testWake()}><CodexIcon name="mic" size={15} />测试唤醒</button>
+          {isRunning && <button disabled={Boolean(busy)} onClick={() => void window.codexBar?.stopWake().then(setState).catch((reason) => setError(String(reason)))}><CodexIcon name="x-circle" size={15} />停止监听 / 测试</button>}
           {state.status === "handed-off" && state.config.enabled && (
             <button disabled={Boolean(busy)} onClick={() => void restart()}><CodexIcon name="play-outline" size={15} />重新监听</button>
           )}
@@ -320,7 +344,8 @@ export function WakeSettings() {
           {isRunning && <span className="wake-live-note">PID {state.pid ?? "—"}</span>}
         </div>
       )}
-      {(notice || error) && <p className={`wake-feedback ${error ? "error" : ""}`}>{error || notice}</p>}
+      <p className="wake-feedback">先一键配置 → 选择麦克风 → 检查配置 → 测试唤醒。测试前请结束 Codex Voice；通过后再开启正式监听。</p>
+      {(notice || error) && <p className={`wake-feedback ${error ? "error" : ""}`} role="status">{error || notice}</p>}
     </section>
   );
 }

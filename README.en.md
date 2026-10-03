@@ -6,7 +6,7 @@
 
 A lightweight desktop companion for Codex Desktop. **By Aeolus.**
 
-**0.1.0 Beta 1** · [Download for Windows](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.1) · [How to run](docs/DOWNLOADS.en.md) · [What's in this beta](docs/BETA.en.md)
+**0.1.0 Beta 2** · [Download for Windows](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.2) · [How to run](docs/DOWNLOADS.en.md) · [What's in this beta](docs/BETA.en.md)
 
 [Get started](#get-started) · [User guide](docs/USAGE.en.md) · [Developer guide](docs/DEVELOPMENT.en.md) · [Feedback](https://github.com/AeolusV/AERO/issues) · [License](LICENSE)
 

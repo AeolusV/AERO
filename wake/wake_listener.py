@@ -15,6 +15,7 @@ import queue
 import re
 import sys
 import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -156,7 +157,7 @@ def check_config(config: dict[str, Any]) -> dict[str, Any]:
     return {"modelPath": str(model_path), "deviceIndex": device_index, "device": device}
 
 
-def listen(config: dict[str, Any], *, no_hotkey: bool = False) -> int:
+def listen(config: dict[str, Any], *, no_hotkey: bool = False, test_wake: bool = False) -> int:
     phrase_text = str(config["wakePhrase"]).strip()
     phrase = normalize(phrase_text)
     aliases = [normalize(str(item)) for item in config.get("wakePhraseAliases", [])]
@@ -200,7 +201,8 @@ def listen(config: dict[str, Any], *, no_hotkey: bool = False) -> int:
             callback=callback,
         ):
             emit("ready", wakePhrase=phrase_text, device=device)
-            while not stop_event.is_set() and not matched:
+            deadline = time.monotonic() + 30 if test_wake else None
+            while not stop_event.is_set() and not matched and (deadline is None or time.monotonic() < deadline):
                 try:
                     data = audio_queue.get(timeout=0.25)
                 except queue.Empty:
@@ -216,6 +218,9 @@ def listen(config: dict[str, Any], *, no_hotkey: bool = False) -> int:
         # RawInputStream has closed here.  Only now may Codex Voice request the
         # same microphone.
         emit("microphone-released", reason="triggered" if matched else "stopped")
+        if test_wake:
+            emit("test-complete", matched=matched, cancelled=stop_event.is_set())
+            return 0
         if matched:
             emit("triggered", wakePhrase=phrase_text)
             if not no_hotkey:
@@ -234,6 +239,7 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="validate config and model without opening the microphone")
     parser.add_argument("--simulate-trigger", action="store_true", help="emit the handoff sequence without opening the microphone")
     parser.add_argument("--no-hotkey", action="store_true", help="do not send Ctrl+Shift+V (tests only)")
+    parser.add_argument("--test-wake", action="store_true", help="listen for at most 30 seconds; never send a hotkey")
     args = parser.parse_args()
 
     if args.list_devices_json:
@@ -249,11 +255,11 @@ def main() -> int:
         emit("starting", wakePhrase=config["wakePhrase"])
         emit("microphone-released", reason="triggered")
         emit("triggered", wakePhrase=config["wakePhrase"])
-        if not args.no_hotkey:
+        if not (args.no_hotkey or args.test_wake):
             press_codex_voice_hotkey()
-        emit("hotkey-sent", hotkey="Ctrl+Shift+V", simulated=args.no_hotkey)
+        emit("hotkey-sent", hotkey="Ctrl+Shift+V", simulated=args.no_hotkey or args.test_wake)
         return 0
-    return listen(config, no_hotkey=args.no_hotkey)
+    return listen(config, no_hotkey=args.no_hotkey or args.test_wake, test_wake=args.test_wake)
 
 
 if __name__ == "__main__":

@@ -37,6 +37,7 @@ async function main() {
   const manager = new WakeListenerManager({
     app,
     scriptPath: join(__dirname, "..", "wake", "wake_listener.py"),
+    discoverLegacy: true, // Legacy developer smoke, not a clean-install acceptance test.
   });
   try {
     await manager.initialize();

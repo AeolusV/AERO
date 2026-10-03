@@ -4,13 +4,13 @@
 
 [User guide](USAGE.en.md) · [Developer guide](DEVELOPMENT.en.md) · [Signing](SIGNING.en.md)
 
-The current version is **0.1.0-beta.1**, for Windows x64 users who want an early look. [Explore this beta](BETA.en.md). Downloads are unsigned; this is not a stable release or confirmation of all desktop behavior.
+The current version is **0.1.0-beta.2**, for Windows x64 users who want an early look. [Explore this beta](BETA.en.md). Downloads are unsigned; this is not a stable release or confirmation of all desktop behavior.
 
 ## Download the beta
 
-Download the application ZIP from **Assets** on [AERO 0.1.0 Beta 1](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.1). Release assets do not have the Actions 14-day automatic expiry; they remain available unless a maintainer removes or replaces them.
+Download the application ZIP from **Assets** on [AERO 0.1.0 Beta 2](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.2). Release assets do not have the Actions 14-day automatic expiry; they remain available unless a maintainer removes or replaces them.
 
-Choose the `.zip` beginning with `AERO-0.1.0-beta.1-win-x64`, plus its matching `.sha256` file. `provenance.jsonl` contains build provenance. GitHub's automatic **Source code** downloads are source, not runnable application packages.
+Choose the `.zip` beginning with `AERO-0.1.0-beta.2-win-x64`, plus its matching `.sha256` file. `provenance.jsonl` contains build provenance. GitHub's automatic **Source code** downloads are source, not runnable application packages.
 
 Verify the application ZIP, extract the entire folder and run `AERO.exe`. Do not move the exe alone. No installation is needed.
 

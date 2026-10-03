@@ -16,6 +16,7 @@ async function main() {
   const manager = new WakeListenerManager({
     app,
     scriptPath: join(__dirname, "..", "wake", "wake_listener.py"),
+    discoverLegacy: true, // Explicit developer-only test, never the shipped default.
   });
 
   try {

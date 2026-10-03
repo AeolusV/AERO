@@ -832,6 +832,7 @@ ipcMain.handle("aero-wake:get-state", () => wakeManager?.snapshot());
 ipcMain.handle("aero-wake:save-config", (_event, patch) => wakeManager.saveConfig(patch || {}));
 ipcMain.handle("aero-wake:set-enabled", (_event, enabled) => wakeManager.setEnabled(Boolean(enabled)));
 ipcMain.handle("aero-wake:start", () => wakeManager.start());
+ipcMain.handle("aero-wake:test", () => wakeManager.start({ testWake: true }));
 ipcMain.handle("aero-wake:stop", () => wakeManager.stop());
 ipcMain.handle("aero-wake:activate-voice", () => wakeManager.activateVoice());
 ipcMain.handle("aero-wake:list-devices", () => wakeManager.listDevices());

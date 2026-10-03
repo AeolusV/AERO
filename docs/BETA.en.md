@@ -1,10 +1,16 @@
-# AERO · 0.1.0 Beta 1
+# AERO · 0.1.0 Beta 2
 
 [简体中文](BETA.md) · **English**
 
 Keep your tasks in sight. Keep your focus yours.
 
-AERO's first beta brings a lightweight floating bar to Codex Desktop on Windows. Expand for everyday controls. Collapse to six quiet task lights while you stay with your work.
+AERO brings a lightweight floating bar to Codex Desktop on Windows. Expand for everyday controls. Collapse to six quiet task lights while you stay with your work.
+
+## Beta 2: an easier start for voice wake-up
+
+New users no longer inherit prototype paths from a developer's computer. One-click setup downloads an isolated runtime and English model without installing global Python launchers or registering Python in Windows. Settings explain the model name and size; the user guide includes official download links, manual setup and retry instructions.
+
+Test wake-up is new: once the model loads, say the phrase within 30 seconds to check local recognition. Testing sends no hotkey and opens no Codex Voice session. It releases the microphone on completion and can be stopped at any time. Enable normal listening after a passing test.
 
 ## What's inside
 

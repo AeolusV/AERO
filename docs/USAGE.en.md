@@ -37,6 +37,24 @@ Default light colors are white / blue / green / yellow / pink for idle / thinkin
 4. Say `Hey Codex`. On detection, the listener releases the microphone, sends the hotkey and exits.
 5. When Codex Voice ends, click Restart listening (`重新监听`). Automatic resumption is not implemented because there is no reliable session-end signal.
 
+### First-time setup and wake-word test
+
+No preinstalled Python is needed. One-click setup downloads isolated Python 3.12.10, Vosk 0.3.45, sounddevice 0.5.5 and the English model into `wake-runtime` under AERO's user data directory, outside the source repository. The Python and English model fields show their actual paths. Initial setup needs internet access; subsequent wake recognition runs offline. The model ZIP is about 40 MB; the runtime is downloaded separately.
+
+The model is **vosk-model-small-en-us-0.15**: [official model list](https://alphacephei.com/vosk/models) · [English model download](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip). ZIP SHA-256: `30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498`.
+
+Select a microphone and check configuration, then turn off normal listening and end Codex Voice before clicking Test wake-up (`测试唤醒`). Once the model loads, you have 30 seconds to say the phrase. The UI shows Passed (`测试通过`) or Not recognized (`未识别`); Stop listening / test (`停止监听 / 测试`) cancels it. Testing stays local, sends no hotkey, opens no Voice session, records no raw audio or routine transcripts, and does not automatically enable normal listening.
+
+A passing test confirms local recognition only, not activation of Codex Voice. Next, confirm `Ctrl+Shift+V` is bound in Codex and enable normal listening. Re-listening after Voice still requires a manual action.
+
+### If one-click setup fails
+
+Check status and logs, confirm access to GitHub, Python dependency download sources and the model URL above, then retry One-click setup or Check / repair (`检查 / 修复`). Keep Windows security protection enabled. Existing runtime and complete model files are reused; a model that fails checksum verification is not enabled directly.
+
+For manual setup, install `vosk==0.3.45` and `sounddevice==0.5.5` in your own isolated Python 3.12 environment. Download and extract the official model. Select that environment's `python.exe` and the extracted `vosk-model-small-en-us-0.15` folder in AERO. The model folder should contain `am/final.mdl` and `conf/mfcc.conf`; do not select the ZIP or its parent folder. Select the microphone, check configuration and test wake-up.
+
+Beta 2 has been checked for first-time downloads, checksums, model loading and repeat installation in an isolated directory. Human pronunciation and the full Desktop Voice activation flow remain unaccepted in this round.
+
 If continuous wake-word listening is unnecessary, turn listening off and use the bar's voice button or the tray's voice entry to send the hotkey. Hiding to the tray does not stop an active listener; exiting AERO does.
 
 For manual setup, the Python path must point to an executable with `vosk` and `sounddevice` installed. The model path must point to the extracted English Vosk model folder, not its archive. Check these paths and the log if configuration fails; there is no need to repeatedly start listening or modify global Python installations.

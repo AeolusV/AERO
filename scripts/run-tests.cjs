@@ -11,6 +11,7 @@ const tests = [
   "bridge-actions.test.cjs",
   "bridge-refresh.test.cjs",
   "desktop-compatibility.test.cjs",
+  "wake-onboarding.test.cjs",
   "control-order.test.ts",
   "thread-display.test.cjs",
   "thread-feedback.test.cjs",

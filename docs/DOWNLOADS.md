@@ -4,13 +4,13 @@
 
 [使用指南](USAGE.md) · [开发指南](DEVELOPMENT.md) · [签名说明](SIGNING.md)
 
-当前版本为 **0.1.0-beta.1**，面向愿意尝鲜的 Windows x64 用户。[了解这个 Beta](BETA.md)。下载包未签名，不代表稳定版本或全部桌面功能已经验证。
+当前版本为 **0.1.0-beta.2**，面向愿意尝鲜的 Windows x64 用户。[了解这个 Beta](BETA.md)。下载包未签名，不代表稳定版本或全部桌面功能已经验证。
 
 ## 下载 Beta
 
-在 [AERO 0.1.0 Beta 1](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.1) 页面的 **Assets** 中下载应用 ZIP。Release 附件没有 Actions 的 14 天自动过期限制；除非维护者删除或替换，会持续保留。
+在 [AERO 0.1.0 Beta 2](https://github.com/AeolusV/AERO/releases/tag/v0.1.0-beta.2) 页面的 **Assets** 中下载应用 ZIP。Release 附件没有 Actions 的 14 天自动过期限制；除非维护者删除或替换，会持续保留。
 
-下载名称以 `AERO-0.1.0-beta.1-win-x64` 开头的 `.zip`，以及同名 `.sha256` 校验文件。`provenance.jsonl` 是构建来源证明；页面自动提供的 **Source code** 是源码，不是可直接运行的应用。
+下载名称以 `AERO-0.1.0-beta.2-win-x64` 开头的 `.zip`，以及同名 `.sha256` 校验文件。`provenance.jsonl` 是构建来源证明；页面自动提供的 **Source code** 是源码，不是可直接运行的应用。
 
 核对应用 ZIP 后完整解压，运行文件夹内 `AERO.exe`，不要单独移动 exe。便携版无需安装。
 

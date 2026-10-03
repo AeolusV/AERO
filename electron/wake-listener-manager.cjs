@@ -94,8 +94,8 @@ function legacyPrototypePaths(app) {
   return { pythonPath: "", modelPath: "", inputDevice: null };
 }
 
-function defaultWakeConfig(app) {
-  const legacy = legacyPrototypePaths(app);
+function defaultWakeConfig(app, discoverLegacy = false) {
+  const legacy = discoverLegacy ? legacyPrototypePaths(app) : { pythonPath: "", modelPath: "", inputDevice: null };
   return mergeWakeConfig({
     version: CONFIG_VERSION,
     enabled: false,
@@ -110,7 +110,7 @@ function defaultWakeConfig(app) {
 }
 
 class WakeListenerManager extends EventEmitter {
-  constructor({ app, scriptPath, spawnImpl = spawn }) {
+  constructor({ app, scriptPath, spawnImpl = spawn, discoverLegacy = false }) {
     super();
     this.app = app;
     this.scriptPath = scriptPath;
@@ -118,7 +118,10 @@ class WakeListenerManager extends EventEmitter {
     this.userDataPath = app.getPath("userData");
     this.configPath = join(this.userDataPath, "wake-listener.json");
     this.logPath = join(this.userDataPath, "logs", "wake-listener.log");
-    this.config = defaultWakeConfig(app);
+    this.discoverLegacy = discoverLegacy;
+    this.config = defaultWakeConfig(app, discoverLegacy);
+    this.testing = false;
+    this.testResult = null;
     this.child = null;
     this.stopRequested = false;
     this.triggered = false;
@@ -148,9 +151,9 @@ class WakeListenerManager extends EventEmitter {
 
   readConfig() {
     try {
-      return mergeWakeConfig(defaultWakeConfig(this.app), JSON.parse(readFileSync(this.configPath, "utf8")));
+      return mergeWakeConfig(defaultWakeConfig(this.app, this.discoverLegacy), JSON.parse(readFileSync(this.configPath, "utf8")));
     } catch {
-      return defaultWakeConfig(this.app);
+      return defaultWakeConfig(this.app, this.discoverLegacy);
     }
   }
 
@@ -225,7 +228,7 @@ class WakeListenerManager extends EventEmitter {
     if (!this.config.modelPath || !existsSync(this.config.modelPath)) {
       throw new Error("英文 Vosk 模型路径无效");
     }
-    if (!this.config.inputDevice) throw new Error("尚未选择麦克风设备");
+    if (this.config.inputDevice == null) throw new Error("尚未选择麦克风设备");
   }
 
   childArguments(extra = []) {
@@ -249,7 +252,12 @@ class WakeListenerManager extends EventEmitter {
         break;
       case "ready":
         this.log("listening", event.device?.name || "default-device");
-        this.updateState({ status: "listening", message: `正在本地监听“${this.config.wakePhrase}”`, device: event.device || null });
+        this.updateState({ status: this.testing ? "testing" : "listening", message: this.testing ? `请在 30 秒内说“${this.config.wakePhrase}”；不会打开 Codex Voice` : `正在本地监听“${this.config.wakePhrase}”`, device: event.device || null });
+        break;
+      case "test-complete":
+        if (!this.testing || event.cancelled) break;
+        this.testResult = event.matched === true;
+        this.updateState({ status: this.testResult ? "test-passed" : "test-timeout", message: this.testResult ? "已识别唤醒词，麦克风已释放；未发送快捷键" : "30 秒内未识别到唤醒词，麦克风已释放；请检查设备后重试" });
         break;
       case "audio-status":
         this.log("audio-status", event.message || "");
@@ -293,8 +301,10 @@ class WakeListenerManager extends EventEmitter {
     return () => stderr.trim();
   }
 
-  async start({ noHotkey = false } = {}) {
+  async start({ noHotkey = false, testWake = false } = {}) {
+    if (testWake && this.child && !this.child.killed) throw new Error("请先关闭监听，再测试唤醒");
     if (this.child && !this.child.killed) return this.snapshot();
+    if (testWake) noHotkey = true;
     try {
       this.validateStartConfig();
       if (!noHotkey) validateVoiceBinding(this.config.hotkey);
@@ -307,12 +317,15 @@ class WakeListenerManager extends EventEmitter {
 
     this.stopRequested = false;
     this.triggered = false;
+    this.testing = testWake;
+    this.testResult = null;
     this.updateState({ status: "starting", message: "正在启动本地监听器", device: null });
     const { executable, environment } = this.pythonCommand();
     const child = this.spawnImpl(executable, this.childArguments([
       "--config",
       this.configPath,
       ...(noHotkey ? ["--no-hotkey"] : []),
+      ...(testWake ? ["--test-wake"] : []),
     ]), {
       cwd: dirname(this.scriptPath),
       windowsHide: true,
@@ -333,8 +346,10 @@ class WakeListenerManager extends EventEmitter {
       if (this.child !== child) return;
       this.child = null;
       const detail = stderr();
-      if (this.triggered) {
-        this.updateState({ status: "handed-off", message: "Codex Voice 已唤醒；等待手动重新启用监听", pid: null, device: null });
+      if (this.testing && this.testResult !== null && code === 0) {
+        this.updateState({ status: this.testResult ? "test-passed" : "test-timeout", pid: null, device: null });
+      } else if (this.triggered) {
+        this.updateState({ status: "handed-off", message: "已发送语音热键；请确认 Voice 已打开，结束后手动重新监听", pid: null, device: null });
       } else if (this.stopRequested) {
         this.updateState({
           status: this.config.enabled ? "stopped" : "disabled",
@@ -349,6 +364,7 @@ class WakeListenerManager extends EventEmitter {
         this.log("unexpected-exit", message);
         this.updateState({ status: "error", message, pid: null, device: null });
       }
+      this.testing = false;
     });
     return this.snapshot();
   }
@@ -387,6 +403,7 @@ class WakeListenerManager extends EventEmitter {
   }
 
   async setEnabled(enabled) {
+    if (enabled && this.testing) throw new Error("请先结束唤醒测试，再开启正式监听");
     this.saveConfig({ enabled: Boolean(enabled) });
     if (enabled) return this.start();
     return this.stop();
