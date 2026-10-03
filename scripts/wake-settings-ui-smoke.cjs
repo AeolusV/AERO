@@ -110,11 +110,6 @@ app.whenReady().then(async () => {
   await window.loadFile(join(__dirname, "..", "dist", "index.html"));
   const identity = await window.webContents.executeJavaScript("({title:document.title, url:location.href, overlay:Boolean(document.querySelector('vite-error-overlay'))})");
   if (!/Aero/i.test(identity.title) || !identity.url.startsWith("file:") || identity.overlay) throw new Error("Wrong page identity or error overlay");
-  await window.webContents.executeJavaScript(`(() => {
-    const style = document.createElement('style');
-    style.textContent = '* { transition: none !important; animation: none !important; }';
-    document.head.append(style);
-  })()`);
   const clicked = await window.webContents.executeJavaScript(`(() => {
     const button = document.querySelector('button.settings-trigger');
     if (!button) return false;
@@ -125,6 +120,8 @@ app.whenReady().then(async () => {
   await new Promise((resolve) => setTimeout(resolve, 420));
   const panelMounted = await window.webContents.executeJavaScript("Boolean(document.querySelector('.customizer.is-open'))");
   if (!panelMounted) throw new Error("Settings panel did not open");
+  // CSS transitions need a rendered surface; a never-shown window can defer layout frames.
+  window.showInactive();
   const voiceClicked = await window.webContents.executeJavaScript(`(() => {
     const button = [...document.querySelectorAll('.settings-tabs button')]
       .find((candidate) => candidate.textContent?.includes('语音'));
@@ -138,6 +135,29 @@ app.whenReady().then(async () => {
   if (!wakePanelMounted) throw new Error("Wake settings panel did not mount");
   const installButtonMounted = await window.webContents.executeJavaScript("Boolean(document.querySelector('.wake-runtime-install'))");
   if (!installButtonMounted) throw new Error("One-click runtime install button did not mount");
+  const disclosureClosed = await window.webContents.executeJavaScript(`(() => {
+    const button = document.querySelector('.wake-panel .settings-disclosure-trigger');
+    const content = document.getElementById(button.getAttribute('aria-controls'));
+    return button.getAttribute('aria-expanded') === 'false' && content.inert && getComputedStyle(content).visibility === 'hidden';
+  })()`);
+  if (!disclosureClosed) throw new Error("Advanced controls must start collapsed and inert");
+  await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-trigger').click()");
+  await new Promise(resolve => setTimeout(resolve, 450));
+  const disclosureOpen = await window.webContents.executeJavaScript(`(() => {
+    const button = document.querySelector('.wake-panel .settings-disclosure-trigger');
+    const content = document.getElementById(button.getAttribute('aria-controls'));
+    const input = content.querySelector('input');
+    input.focus();
+    return { expanded: button.getAttribute('aria-expanded'), inert: content.inert, height: content.getBoundingClientRect().height, focus: document.activeElement === input };
+  })()`);
+  if (disclosureOpen.expanded !== 'true' || disclosureOpen.inert || disclosureOpen.height <= 100 || !disclosureOpen.focus) throw new Error(`Advanced settings did not expand or accept keyboard focus: ${JSON.stringify(disclosureOpen)}`);
+  if (process.env.AERO_WAKE_UI_ADVANCED !== '1') {
+    await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-trigger').click()");
+    await new Promise(resolve => setTimeout(resolve, 450));
+    const closedAgain = await window.webContents.executeJavaScript("document.querySelector('.wake-panel .settings-disclosure-reveal').inert && document.querySelector('.wake-panel .settings-disclosure-reveal').getBoundingClientRect().height < 1");
+    if (!closedAgain) throw new Error("Advanced settings did not collapse cleanly");
+  }
+  console.log("SETTINGS_DISCLOSURE_OK collapsed=inert expanded=focusable motion=settled");
   const resumeMode = await window.webContents.executeJavaScript(`(() => {
     const group = document.querySelector('.wake-resume-modes');
     const automatic = group?.querySelector('button');
@@ -159,9 +179,28 @@ app.whenReady().then(async () => {
   }
   const activeTab = await window.webContents.executeJavaScript("document.querySelector('.settings-tabs button.active')?.textContent?.trim() || ''");
   if (activeTab !== "语音") throw new Error(`Unexpected active settings tab: ${activeTab}`);
+  if (process.env.AERO_SETTINGS_UI_TAB === 'appearance') {
+    await window.webContents.executeJavaScript("[...document.querySelectorAll('.settings-tabs button')].find(button => button.textContent.includes('外观')).click()");
+    await new Promise(resolve => setTimeout(resolve, 450));
+    const appearance = await window.webContents.executeJavaScript(`(() => {
+      const panel = document.querySelector('.appearance-panel');
+      const disclosures = [...panel.querySelectorAll('.settings-disclosure-trigger')];
+      const options = panel.querySelector('.appearance-options');
+      return disclosures.length === 2 && disclosures.every(item => item.getAttribute('aria-expanded') === 'false') && options.getBoundingClientRect().top < disclosures[0].getBoundingClientRect().top;
+    })()`);
+    if (!appearance) throw new Error('Appearance hierarchy did not render');
+    if (process.env.AERO_SETTINGS_UI_DARK === '1') {
+      await window.webContents.executeJavaScript("[...document.querySelectorAll('[aria-label=\"大 Bar 材质\"] button')].find(button => button.textContent === '深色').click()");
+      await new Promise(resolve => setTimeout(resolve, 450));
+      const dark = await window.webContents.executeJavaScript("Boolean(document.querySelector('.large-material-dark'))");
+      if (!dark) throw new Error('Settings did not follow the main bar theme');
+    }
+    console.log('APPEARANCE_HIERARCHY_OK common=visible detail=collapsed');
+  }
+  await window.webContents.executeJavaScript("document.querySelector('.wake-panel, .appearance-panel').scrollTop = 0");
   const metrics = await window.webContents.executeJavaScript(`(() => {
     const panel = document.querySelector('.customizer');
-    const wake = document.querySelector('.wake-panel');
+    const wake = document.querySelector('.wake-panel, .appearance-panel');
     const style = getComputedStyle(panel);
     return {
       panelClass: panel.className,

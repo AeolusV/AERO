@@ -19,6 +19,7 @@ import {
 import { CodexIcon, type CodexIconName } from "./CodexIcon";
 import { BrandMark, type BrandPalette, type BrandSurface } from "./BrandMark";
 import { WakeSettings } from "./WakeSettings";
+import { SettingsDisclosure } from "./SettingsDisclosure";
 import { moveControlBy, reorderControls } from "./control-order";
 import { playInteractionSound, type InteractionSound } from "./interaction-sound";
 import { workspaceNameFromCwd } from "./thread-display";
@@ -941,6 +942,7 @@ export default function App() {
 
           {settingsTab === "appearance" && (
             <section className="appearance-panel" aria-label="外观设置">
+              <SettingsDisclosure title="标志与配色" description="选择喜欢的色彩与标志风格">
               <article className="settings-card brand-showcase">
                 <BrandMark palette={brandPalette} surface={brandSurface} size={76} />
                 <span>
@@ -971,30 +973,32 @@ export default function App() {
                 </div>
               </article>
 
+              <div className="setting-row">
+                <span><strong>标志底色</strong><small>柔和卡片，或只保留标志</small></span>
+                <div className="segmented-setting" role="group" aria-label="标志底色">
+                  <button className={brandSurface === "soft" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "soft"} onClick={() => setBrandSurface("soft")}>柔和</button>
+                  <button className={brandSurface === "clear" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "clear"} onClick={() => setBrandSurface("clear")}>透明</button>
+                </div>
+              </div>
+              </SettingsDisclosure>
+
               <article className="settings-card appearance-options">
                 <div className="setting-row">
-                  <span><strong>标志底色</strong><small>保留柔和卡片或使用透明版本</small></span>
-                  <div className="segmented-setting" role="group" aria-label="标志底色">
-                    <button className={brandSurface === "soft" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "soft"} onClick={() => setBrandSurface("soft")}>柔和</button>
-                    <button className={brandSurface === "clear" ? "active" : ""} data-sound="tick" aria-pressed={brandSurface === "clear"} onClick={() => setBrandSurface("clear")}>透明</button>
-                  </div>
-                </div>
-                <div className="setting-row">
-                  <span><strong>大 Bar 材质</strong><small>完整控制栏可使用冷白或深色玻璃</small></span>
+                  <span><strong>控制栏外观</strong><small>完整控制栏的明暗风格</small></span>
                   <div className="segmented-setting material-segments" role="group" aria-label="大 Bar 材质">
                     <button className={largeBarMaterial === "light" ? "active" : ""} data-sound="tick" aria-pressed={largeBarMaterial === "light"} onClick={() => setLargeBarMaterial("light")}>冷白</button>
                     <button className={largeBarMaterial === "dark" ? "active" : ""} data-sound="tick" aria-pressed={largeBarMaterial === "dark"} onClick={() => setLargeBarMaterial("dark")}>深色</button>
                   </div>
                 </div>
                 <div className="setting-row">
-                  <span><strong>小 Bar 材质</strong><small>迷你状态栏独立选择黑白模式</small></span>
+                  <span><strong>迷你栏外观</strong><small>状态栏的明暗风格</small></span>
                   <div className="segmented-setting material-segments" role="group" aria-label="小 Bar 材质">
                     <button className={compactBarMaterial === "light" ? "active" : ""} data-sound="tick" aria-pressed={compactBarMaterial === "light"} onClick={() => setCompactBarMaterial("light")}>冷白</button>
                     <button className={compactBarMaterial === "dark" ? "active" : ""} data-sound="tick" aria-pressed={compactBarMaterial === "dark"} onClick={() => setCompactBarMaterial("dark")}>深色</button>
                   </div>
                 </div>
                 <div className="setting-row">
-                  <span><strong>界面密度</strong><small>调整主 Bar 的控件尺寸与间距</small></span>
+                  <span><strong>界面密度</strong><small>让控制栏更紧凑，或更舒展</small></span>
                   <div className="segmented-setting density-segments" role="group" aria-label="界面密度">
                     {["紧凑", "平衡", "舒展"].map((label, value) => (
                       <button key={label} className={density === value ? "active" : ""} data-sound="tick" aria-pressed={density === value} onClick={() => setDensity(value)}>{label}</button>
@@ -1002,7 +1006,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="setting-row">
-                  <span><strong>交互声音</strong><small>轻触、确认与危险操作使用不同音色</small></span>
+                  <span><strong>交互声音</strong><small>为每次轻触添一点回应</small></span>
                   <button
                     className={`switch ${soundEnabled ? "on" : ""}`}
                     data-sound="confirm"
@@ -1016,6 +1020,7 @@ export default function App() {
                 </div>
               </article>
 
+              <SettingsDisclosure title="状态灯颜色" description="了解五种状态，或调出自己的颜色">
               <article className="settings-card lamp-color-card">
                 <div className="settings-card-heading">
                   <span><strong>状态灯颜色</strong><small>默认遵循 Codex 五种状态；自定义会实时同步到大 Bar 与小 Bar。</small></span>
@@ -1064,6 +1069,7 @@ export default function App() {
                   ))}
                 </div>
               </article>
+              </SettingsDisclosure>
             </section>
           )}
 
@@ -1071,7 +1077,7 @@ export default function App() {
             <section className="connections-panel" aria-label="实验连接">
               <div className="experimental-note">
                 <span className="experimental-note-icon"><CodexIcon name="pointer-outline" size={18} /></span>
-                <span><strong>实验连接</strong><small>当前主 Bar 不依赖远程控制。这里为未来的手机伴侣和跨设备状态预留。</small></span>
+                <span><strong>跨设备连接</strong><small>管理 Codex 的远程设备。只在这台电脑使用 AERO 时，无需开启。</small></span>
                 <span className="experimental-badge">Experimental</span>
               </div>
 
