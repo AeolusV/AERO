@@ -52,6 +52,8 @@ npm.cmd run verify    # 测试 + 生产构建
 
 ## Windows 便携候选包
 
+手动触发的 GitHub 候选包流程与下载核对见 [候选包下载与核对](DOWNLOADS.md)，它不自动发布 Release。
+
 签名准备与验签步骤见 [Windows 签名与发布](SIGNING.md)。默认只读预检，需要作者提供证书后才可执行签名。
 
 打包不创建 GitHub Release。当前仅支持 Windows x64，使用 Electron 的未归档 `resources/app` 布局，保持 Python 与 PowerShell 文件可直接执行。

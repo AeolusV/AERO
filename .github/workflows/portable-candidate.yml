@@ -1,0 +1,93 @@
+name: Windows portable candidate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aero-portable-candidate
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'AeolusV/AERO' && github.ref == 'refs/heads/main'
+    runs-on: windows-2025
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out the selected commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Create isolated work directory
+        shell: pwsh
+        run: |
+          $root = "C:\tmp\codex\ci-aero-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          "AERO_CI_ROOT=$root" >> $env:GITHUB_ENV
+      - name: Install locked dependencies
+        run: npm.cmd ci
+      - name: Test, type-check and build
+        run: npm.cmd run verify
+      - name: Package Windows x64
+        shell: pwsh
+        run: |
+          node scripts/package-portable.cjs --out "$env:AERO_CI_ROOT\portable"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Validate packaged renderer without Codex or microphone
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $exe = "$env:AERO_CI_ROOT\portable\AERO-$version-win-x64\AERO.exe"
+          $env:AERO_SMOKE_PROFILE = "$env:AERO_CI_ROOT\smoke-profile"
+          New-Item -ItemType Directory -Path $env:AERO_SMOKE_PROFILE -Force | Out-Null
+          $result = Start-Process -FilePath $exe -ArgumentList '--package-smoke' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:AERO_CI_ROOT\smoke-out.txt" -RedirectStandardError "$env:AERO_CI_ROOT\smoke-err.txt"
+          Get-Content "$env:AERO_CI_ROOT\smoke-out.txt"
+          Get-Content "$env:AERO_CI_ROOT\smoke-err.txt"
+          if ($result.ExitCode -ne 0) { throw "Packaged startup failed: $($result.ExitCode)" }
+          if (-not (Select-String -LiteralPath "$env:AERO_CI_ROOT\smoke-out.txt" -Pattern 'PACKAGE_SMOKE_OK' -Quiet)) { throw 'Missing packaged startup receipt' }
+      - name: Archive and checksum
+        id: archive
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $short = $env:GITHUB_SHA.Substring(0, 12)
+          $archive = "$env:AERO_CI_ROOT\download\AERO-$version-win-x64-candidate-$short.zip"
+          & scripts/archive-portable.ps1 -PackageDirectory "$env:AERO_CI_ROOT\portable\AERO-$version-win-x64" -ArchivePath $archive
+          "zip=$archive" >> $env:GITHUB_OUTPUT
+          "download=$env:AERO_CI_ROOT\download" >> $env:GITHUB_OUTPUT
+          "name=AERO-$version-win-x64-candidate-$short" >> $env:GITHUB_OUTPUT
+      - name: Attest the downloadable ZIP
+        id: provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: ${{ steps.archive.outputs.zip }}
+      - name: Include verification bundle
+        shell: pwsh
+        env:
+          ATTESTATION_BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+          DOWNLOAD_DIRECTORY: ${{ steps.archive.outputs.download }}
+        run: |
+          Copy-Item -LiteralPath $env:ATTESTATION_BUNDLE -Destination "$env:DOWNLOAD_DIRECTORY\provenance.jsonl"
+      - name: Upload candidate, not a Release
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.archive.outputs.name }}
+          path: ${{ steps.archive.outputs.download }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Summarize limits
+        shell: pwsh
+        run: |
+          "## AERO unsigned Windows x64 candidate" >> $env:GITHUB_STEP_SUMMARY
+          "- Commit: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          "- Regression, build and isolated packaged-renderer checks passed." >> $env:GITHUB_STEP_SUMMARY
+          "- Real Codex actions, tray/window behavior and human voice wake-up were not tested." >> $env:GITHUB_STEP_SUMMARY
+          "- Provenance is not Windows Authenticode signing. No Release was created." >> $env:GITHUB_STEP_SUMMARY

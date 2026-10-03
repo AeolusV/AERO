@@ -52,6 +52,8 @@ Do not report a passed default suite as verified human English wake-up. End-to-e
 
 ## Windows portable candidate
 
+See [candidate downloads and verification](DOWNLOADS.en.md) for the manually triggered GitHub build. It does not automatically publish Releases.
+
 See [Windows signing and release](SIGNING.en.md) for certificate preparation and verification. Preflight is read-only; actual signing requires an explicitly supplied certificate.
 
 Packaging does not publish a GitHub Release. The current target is Windows x64, using an unarchived Electron `resources/app` layout so Python and PowerShell resources remain executable.

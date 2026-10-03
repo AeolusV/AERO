@@ -1,0 +1,15 @@
+const assert = require("node:assert/strict");
+const { readFileSync } = require("node:fs");
+const { join } = require("node:path");
+const root = join(__dirname, "..");
+const workflow = readFileSync(join(root, ".github/workflows/portable-candidate.yml"), "utf8");
+assert.ok(workflow.includes("workflow_dispatch:"));
+assert.ok(!workflow.includes("pull_request_target") && !workflow.includes("contents: write"));
+assert.ok(!workflow.includes("gh release create") && !workflow.includes("secrets."));
+assert.ok(workflow.includes("github.ref == 'refs/heads/main'"));
+assert.ok(workflow.includes("persist-credentials: false"));
+assert.equal([...workflow.matchAll(/uses: actions\/[^@]+@([a-f0-9]{40})/g)].length, 4);
+for (const value of ["npm.cmd run verify", "--package-smoke", "PACKAGE_SMOKE_OK", "archive-portable.ps1", "subject-path:", "attestations: write", "id-token: write", "provenance.outputs.bundle-path", "retention-days: 14"]) assert.ok(workflow.includes(value), value);
+const archive = readFileSync(join(root, "scripts/archive-portable.ps1"), "utf8");
+for (const value of ["Checksum path escapes", "Unlisted file", "Output exists", "Reparse points", "Get-FileHash", "Compress-Archive -LiteralPath"]) assert.ok(archive.includes(value), value);
+console.log("release-workflow: manual trigger, pinned actions, permissions, provenance and archive guards passed");

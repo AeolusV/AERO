@@ -42,6 +42,15 @@ function packagePortable({ root, out, platform = process.platform, arch = proces
     main: "electron/main.cjs", type: "module", author: pkg.author, license: pkg.license,
   }, null, 2) + "\n");
   for (const file of ["LICENSE", "THIRD_PARTY_NOTICES.md"]) cpSync(join(root, file), join(destination, file));
+  writeFileSync(join(destination, "BUILD-INFO.json"), JSON.stringify({
+    version: pkg.version, platform: "win32", arch: "x64", signed: false,
+    nodeVersion: process.version,
+    electronVersion: JSON.parse(readFileSync(join(root, "node_modules", "electron", "package.json"), "utf8")).version,
+    sourceCommit: /^[a-f0-9]{40}$/i.test(process.env.GITHUB_SHA || "") ? process.env.GITHUB_SHA : null,
+    repository: process.env.GITHUB_REPOSITORY === "AeolusV/AERO" ? "AeolusV/AERO" : null,
+    workflowRun: /^\d+$/.test(process.env.GITHUB_RUN_ID || "") ? process.env.GITHUB_RUN_ID : null,
+    desktopEndToEndVerified: false,
+  }, null, 2) + "\n");
   writeFileSync(join(destination, "START-HERE.txt"),
     "AERO by Aeolus — Windows x64 preview\r\n\r\n" +
     "解压完整文件夹后运行 AERO.exe，无需安装 Node.js。不要单独移动 exe。\r\n" +

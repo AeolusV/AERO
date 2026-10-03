@@ -7,6 +7,7 @@ const tests = [
   "startup.test.cjs",
   "packaging.test.cjs",
   "signing.test.cjs",
+  "release-workflow.test.cjs",
   "bridge-actions.test.cjs",
   "bridge-refresh.test.cjs",
   "desktop-compatibility.test.cjs",
