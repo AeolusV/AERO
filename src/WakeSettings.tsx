@@ -193,7 +193,7 @@ export function WakeSettings() {
   };
 
   if (!state || !draft) {
-    return <section className="wake-panel"><div className="wake-loading">正在读取本地唤醒设置…</div></section>;
+    return <section className="wake-panel"><div className="wake-loading">{window.codexBar ? "正在读取本地唤醒设置…" : "浏览器预览模式：语音监听与麦克风配置请在 AERO 桌面应用中使用。"}</div></section>;
   }
 
   return (

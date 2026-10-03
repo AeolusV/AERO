@@ -365,9 +365,11 @@ function spawnCodex(binaryPath) {
 }
 
 class CodexBridge extends EventEmitter {
-  constructor({ openExternal, openPath, openTerminal, writeClipboard }) {
+  constructor({ openExternal, openPath, openTerminal, writeClipboard, readLocalThreads = discoverLocalThreads }) {
     super();
     this.openExternal = openExternal;
+    this.readLocalThreads = readLocalThreads;
+    this.threadListWarning = "";
     this.openPath = openPath || (async () => "");
     this.openTerminal = openTerminal || (async () => undefined);
     this.writeClipboard = writeClipboard || (() => undefined);
@@ -643,16 +645,24 @@ class CodexBridge extends EventEmitter {
   async refresh({ forceServer = false } = {}) {
     const nowMs = Date.now();
     if (forceServer || nowMs - this.serverThreadsRefreshedAt >= SERVER_REFRESH_INTERVAL_MS) {
-      const result = await this.request("thread/list", {
-        archived: false,
-        limit: 100,
-        sortKey: "recency_at",
-        sortDirection: "desc",
-      });
-      this.serverThreads = (result?.data || []).map(displayThread);
+      try {
+        const result = await this.request("thread/list", {
+          archived: false,
+          limit: 32,
+          sortKey: "recency_at",
+          sortDirection: "desc",
+        }, 8000);
+        this.serverThreads = (result?.data || []).map(displayThread);
+        this.threadListWarning = "";
+      } catch (error) {
+        if (!/请求超时|timed out|timeout/i.test(error.message || "")) throw error;
+        // Slow history reads must not tear down an otherwise initialized connection.
+        // Preserve the previous server list and supplement it with local structured events.
+        this.threadListWarning = "任务列表读取较慢，暂时显示本地任务状态";
+      }
       this.serverThreadsRefreshedAt = nowMs;
     }
-    const localThreads = await discoverLocalThreads(32, nowMs);
+    const localThreads = await this.readLocalThreads(32, nowMs);
     const localById = new Map(localThreads.map((thread) => [thread.id, thread]));
     const serverIds = new Set(this.serverThreads.map((thread) => thread.id));
     const discoveredThreads = this.serverThreads.length
@@ -679,6 +689,7 @@ class CodexBridge extends EventEmitter {
     return this.publish({
       threads,
       activeThreadId,
+      error: this.threadListWarning,
       reasoningEffort: this.threadEfforts.get(activeThreadId) || this.defaultReasoningEffort,
     });
   }

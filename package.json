@@ -25,7 +25,8 @@
     "test:wake-runtime": "node scripts/wake-runtime-installer.test.cjs",
     "wake:enable-current-user": "electron scripts/enable-wake-current-user.cjs",
     "preview": "vite preview --config vite.config.ts --host 127.0.0.1",
-    "start": "electron ."
+    "start": "electron .",
+    "package:portable": "npm run build && node scripts/package-portable.cjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -50,6 +50,31 @@ The default suite uses an explicit allowlist covering startup, bridge actions, e
 
 Do not report a passed default suite as verified human English wake-up. End-to-end voice confirmation requires a person to speak the phrase and observe Codex Voice starting and the microphone handoff.
 
+## Windows portable candidate
+
+Packaging does not publish a GitHub Release. The current target is Windows x64, using an unarchived Electron `resources/app` layout so Python and PowerShell resources remain executable.
+
+```powershell
+npm.cmd run package:portable -- --out C:\tmp\codex\YYYY-MM-DD-aero-release
+```
+
+Run `AERO.exe` from the complete output folder; Node.js is not required. Do not distribute the exe alone. Existing outputs are never overwritten. The folder includes licensing, getting-started notes and per-file SHA-256 checksums, but no models, personal settings, logs or development dependency tree. This preview is unsigned and retains Electron's default executable file icon; the app and tray use AERO branding.
+
+Create a dedicated profile before the isolated startup check:
+
+```powershell
+$env:AERO_SMOKE_PROFILE = 'C:\tmp\codex\YYYY-MM-DD-aero-release\smoke-profile'
+New-Item -ItemType Directory -Force -Path $env:AERO_SMOKE_PROFILE
+# Replace with your actual output path:
+& 'C:\tmp\codex\YYYY-MM-DD-aero-release\AERO-0.1.0-win-x64\AERO.exe' --package-smoke
+```
+
+`PACKAGE_SMOKE_OK` confirms packaged page, settings, six lights and resource loading. It intentionally does not connect to Codex or access a microphone, and is not desktop end-to-end validation. Its dedicated profile leaves existing settings untouched.
+
+`node scripts/codex-readonly-smoke.cjs` explicitly checks the real backend without writing. It reports only connection state, thread count and effort choices, never submitting tasks, switching threads or changing configuration. It is excluded from default tests.
+
+Before release, still verify real task navigation and status changes, effort application, tray exit, window dragging, first-user runtime downloads and human English wake-up. Publishing a public Release requires separate confirmation of scope.
+
 ## Change boundaries
 
 - Preserve `contextIsolation`, renderer sandboxing and preload boundaries; do not expose Node privileges to the UI.

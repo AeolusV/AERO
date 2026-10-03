@@ -5,7 +5,9 @@ const { join } = require("node:path");
 // Explicitly exclude live tests: no microphone, model download, hotkey or Codex session.
 const tests = [
   "startup.test.cjs",
+  "packaging.test.cjs",
   "bridge-actions.test.cjs",
+  "bridge-refresh.test.cjs",
   "desktop-compatibility.test.cjs",
   "control-order.test.ts",
   "thread-display.test.cjs",

@@ -50,6 +50,31 @@ npm.cmd run verify    # 测试 + 生产构建
 
 不要把默认回归通过写成真人英文唤醒已经验证。语音端到端确认需要用户实际说出唤醒词，并观察 Codex Voice 启动与麦克风交接。
 
+## Windows 便携候选包
+
+打包不创建 GitHub Release。当前仅支持 Windows x64，使用 Electron 的未归档 `resources/app` 布局，保持 Python 与 PowerShell 文件可直接执行。
+
+```powershell
+npm.cmd run package:portable -- --out C:\tmp\codex\YYYY-MM-DD-aero-release
+```
+
+输出为完整文件夹，运行 `AERO.exe`，不需要用户安装 Node.js；不得单独分发 exe。输出已存在时拒绝覆盖。包内包含许可说明、入门说明与逐文件 SHA-256，不包含模型、用户配置、日志或源码目录的依赖树。当前没有代码签名，exe 的文件图标仍是 Electron 默认图标；应用内与托盘使用 AERO 图标。
+
+隔离启动检查需要先创建任务专属配置目录：
+
+```powershell
+$env:AERO_SMOKE_PROFILE = 'C:\tmp\codex\YYYY-MM-DD-aero-release\smoke-profile'
+New-Item -ItemType Directory -Force -Path $env:AERO_SMOKE_PROFILE
+# 以实际输出路径替换：
+& 'C:\tmp\codex\YYYY-MM-DD-aero-release\AERO-0.1.0-win-x64\AERO.exe' --package-smoke
+```
+
+`PACKAGE_SMOKE_OK` 表示包内页面、设置面板、六灯与资源可加载；它故意不连接 Codex、不监听麦克风，不等于真实桌面端到端验证。使用专属配置，不修改已有用户设置。
+
+`node scripts/codex-readonly-smoke.cjs` 是显式的真实后端只读检查，只输出连接结果、线程数量和推理档位，不提交任务、不切换线程或修改配置。它不属于默认测试。
+
+发布前仍须实测：真实线程切换与状态变化、推理设置生效、托盘退出、窗口拖动、新用户运行环境下载与真人英文唤醒。公开 Release 前需另行确认发布范围。
+
 ## 修改边界
 
 - 保持 `contextIsolation`、渲染进程沙箱与 preload 边界，不把 Node 权限暴露给界面。

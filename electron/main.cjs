@@ -7,6 +7,12 @@ const { CodexBridge } = require("./codex-bridge.cjs");
 const { WakeListenerManager } = require("./wake-listener-manager.cjs");
 const { WakeRuntimeInstaller } = require("./wake-runtime-installer.cjs");
 const { resolveStartupTarget } = require("./startup.cjs");
+const packageSmoke = process.argv.includes("--package-smoke");
+if (packageSmoke) {
+  if (!process.env.AERO_SMOKE_PROFILE) throw new Error("AERO_SMOKE_PROFILE is required for an isolated packaging check.");
+  app.setPath("userData", process.env.AERO_SMOKE_PROFILE);
+  app.disableHardwareAcceleration();
+}
 const {
   advanceBoundsSpring,
   boundsAreNear,
@@ -718,6 +724,9 @@ if (!hasSingleInstanceLock) {
 }
 
 if (hasSingleInstanceLock) app.whenReady().then(() => {
+  if (packageSmoke) {
+    return require("./package-smoke.cjs").runPackageSmoke({ app, BrowserWindow, nativeImage, root: join(__dirname, "..") });
+  }
   // Validate before creating background services: a failed launch must not leave a listener running.
   startupTarget = resolveStartupTarget({
     root: join(__dirname, ".."),
