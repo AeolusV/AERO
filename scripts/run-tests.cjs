@@ -6,6 +6,7 @@ const { join } = require("node:path");
 const tests = [
   "startup.test.cjs",
   "packaging.test.cjs",
+  "signing.test.cjs",
   "bridge-actions.test.cjs",
   "bridge-refresh.test.cjs",
   "desktop-compatibility.test.cjs",

@@ -18,3 +18,5 @@ wake-listener.json
 auth.json
 *.pem
 *.key
+*.pfx
+*.p12
